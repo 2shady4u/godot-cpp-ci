@@ -16,6 +16,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           lfs: true
+          submodules: recursive
       - name: Linux Build
         run: |
           mkdir -v -p gdnative_cpp_example/demo/bin/x11
