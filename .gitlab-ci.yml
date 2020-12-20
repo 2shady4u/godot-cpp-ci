@@ -1,0 +1,28 @@
+image: ponders/godot-cpp-ci:latest
+
+# Cache imported assets between runs
+cache:
+  key: import-assets
+  paths:
+    - .import/
+
+stages:
+  - export
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  EXPORT_NAME: test-project
+
+linux:
+  stage: export
+  script:
+    - mkdir -v -p gdnative_cpp_example/demo/bin/x11
+    - cd gdnative_cpp_example
+    - cd godot-cpp
+    - scons platform=linux bits=64 target=debug generate_bindings=yes -j4
+    - cd ..
+    - scons platform=linux
+  artifacts:
+    name: $EXPORT_NAME-$CI_JOB_NAME
+    paths:
+      - gdnative_cpp_example/demo/bin/x11
