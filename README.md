@@ -1,2 +1,2 @@
 # godot-cpp-ci
-testing some stuff
+Docker image to compile Godot C++ GDNative libraries. 
