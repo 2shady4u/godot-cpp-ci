@@ -5,6 +5,7 @@ cache:
   key: import-assets
   paths:
     - .import/
+    - godot-cpp/bin/
 
 stages:
   - export
