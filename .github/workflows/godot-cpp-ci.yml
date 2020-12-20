@@ -1,0 +1,31 @@
+name: "godot-cpp-ci export"
+on: push
+
+env:
+  GODOT_VERSION: 3.2.3
+  EXPORT_NAME: test-project
+
+jobs:
+  export-linux:
+    name: Linux Export
+    runs-on: ubuntu-latest
+    container:
+      image: ponders/godot-cpp-ci:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+      - name: Linux Build
+        run: |
+          mkdir -v -p gdnative_cpp_example/demo/bin/x11
+          cd gdnative_cpp_example
+          cd godot-cpp
+          scons platform=linux bits=64 target=debug generate_bindings=yes -j4
+          cd ..
+          scons platform=linux
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: linux
+          path: gdnative_cpp_example/demo/bin/x11
