@@ -1,4 +1,4 @@
-image: multiarch/crossbuild:latest
+image: ponders/godot-cpp-ci:latest
 
 # Cache imported assets between runs
 cache:
