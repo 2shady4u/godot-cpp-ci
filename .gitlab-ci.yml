@@ -4,8 +4,8 @@ image: ponders/godot-cpp-ci:latest
 cache:
   key: import-assets
   paths:
-    - .import/
-    - godot-cpp/bin/
+    - gdnative_cpp_example/demo/.import/
+    - gdnative_cpp_example/godot-cpp/bin/
 
 stages:
   - export
