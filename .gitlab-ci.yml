@@ -19,7 +19,6 @@ linux:
     - mkdir -v -p gdnative_cpp_example/demo/bin/x11
     - cd gdnative_cpp_example
     - cd godot-cpp
-    - 
     - scons platform=linux bits=64 target=debug generate_bindings=yes -j4
     - cd ..
     - scons platform=linux
