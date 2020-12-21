@@ -6,7 +6,7 @@ env:
   EXPORT_NAME: test-project
 
 jobs:
- export-windows:
+  export-windows:
     name: Windows Export
     runs-on: ubuntu-latest
     container:
@@ -30,6 +30,7 @@ jobs:
         with:
           name: windows
           path: gdnative_cpp_example/demo/bin/win64
+
   export-linux:
     name: Linux Export
     runs-on: ubuntu-latest
