@@ -2,9 +2,8 @@ image: ponders/godot-cpp-ci:latest
 
 # Cache imported assets between runs
 cache:
-  key: import-assets
+  key: compiled-bindings
   paths:
-    - gdnative_cpp_example/demo/.import/
     - gdnative_cpp_example/godot-cpp/bin/
 
 stages:
@@ -20,6 +19,7 @@ linux:
     - mkdir -v -p gdnative_cpp_example/demo/bin/x11
     - cd gdnative_cpp_example
     - cd godot-cpp
+    - 
     - scons platform=linux bits=64 target=debug generate_bindings=yes -j4
     - cd ..
     - scons platform=linux

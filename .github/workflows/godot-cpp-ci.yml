@@ -6,6 +6,30 @@ env:
   EXPORT_NAME: test-project
 
 jobs:
+ export-windows:
+    name: Windows Export
+    runs-on: ubuntu-latest
+    container:
+      image: ponders/godot-cpp-ci:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+          submodules: recursive
+      - name: Windows Build
+        run: |
+          mkdir -v -p gdnative_cpp_example/demo/bin/win64
+          cd gdnative_cpp_example
+          cd godot-cpp
+          scons platform=windows bits=64 target=debug generate_bindings=yes -j4
+          cd ..
+          scons platform=windows
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: windows
+          path: gdnative_cpp_example/demo/bin/win64
   export-linux:
     name: Linux Export
     runs-on: ubuntu-latest
