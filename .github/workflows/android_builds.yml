@@ -1,4 +1,4 @@
-name: 🏁 Windows Builds
+name: 🤖 Android Builds
 on: push
 
 # Global Settings
@@ -7,17 +7,22 @@ env:
   EXPORT_NAME: test-project
 
 jobs:
-  windows-compilation:
-    name: Windows Compilation
-    runs-on: "windows-latest"
+  android-compilation:
+    name: Android Compilation
+    runs-on: "ubuntu-20.04"
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-        with:
+      - uses: actions/checkout@v2 
+      with:
           lfs: true
           submodules: recursive
 
-      # Use python 3.x release (works cross platform; best to keep self contained in it's own step)
+      - name: Set up Java 8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8
+
+      # Use python 3.x release (works cross platform)
       - name: Set up Python 3.x
         uses: actions/setup-python@v2
         with:
@@ -26,28 +31,26 @@ jobs:
           # Optional - x64 or x86 architecture, defaults to x64
           architecture: 'x64'
 
-      # Setup scons, print python version and scons version info, so if anything is broken it won't run the build.
       - name: Configuring Python packages
         run: |
           python -c "import sys; print(sys.version)"
-          python -m pip install scons pywin32
+          python -m pip install scons
           python --version
           scons --version
 
       - name: Compilation
+        env:
+          ANDROID_NDK_ROOT: /usr/local/lib/android/sdk/ndk-bundle
         run: |
-          if(-Not (Test-Path -Path "gdnative_cpp_example\demo\bin\win64"))
-          {
-            mkdir gdnative_cpp_example\demo\bin\win64
-          }
+          mkdir -v -p gdnative_cpp_example/demo/bin/armv7
           cd gdnative_cpp_example
           cd godot-cpp
-          scons platform=windows bits=64 target=debug generate_bindings=yes -j4
+          scons platform=android bits=64 target=debug generate_bindings=yes -j4
           cd ..
-          scons platform=windows
+          scons platform=android
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
-          name: osx
-          path: gdnative_cpp_example/demo/bin/win64
+          name: android
+          path: gdnative_cpp_example/demo/bin/armv7
