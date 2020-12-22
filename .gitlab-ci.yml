@@ -1,6 +1,6 @@
 image: ponders/godot-cpp-ci:latest
 
-# Cache imported assets between runs
+# Cache compiled bindings between runs
 cache:
   key: compiled-bindings
   paths:
