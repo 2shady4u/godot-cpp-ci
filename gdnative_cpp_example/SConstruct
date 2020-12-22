@@ -99,12 +99,8 @@ if env['platform'] == 'linux':
     elif env['target'] == 'release':
         env.Append(CCFLAGS=['-O3'])
 
-    if env['bits'] == '64':
-        env.Append(CCFLAGS=['-m64'])
-        env.Append(LINKFLAGS=['-m64'])
-    elif env['bits'] == '32':
-        env.Append(CCFLAGS=['-m32'])
-        env.Append(LINKFLAGS=['-m32'])
+    env.Append(CCFLAGS=['-m64'])
+    env.Append(LINKFLAGS=['-m64'])
 
 elif env['platform'] == 'osx':
     env['target_path'] += 'osx/'
@@ -112,11 +108,6 @@ elif env['platform'] == 'osx':
 
     # Use Clang on macOS by default
     env['CXX'] = 'clang++'
-
-    if env['bits'] == '32':
-        raise ValueError(
-            'Only 64-bit builds are supported for the macOS target.'
-        )
 
     env.Append(CCFLAGS=['-g', '-std=c++14', '-arch', 'x86_64'])
     env.Append(LINKFLAGS=[
@@ -146,16 +137,10 @@ elif env['platform'] == 'windows':
 
     elif host_platform == 'linux' or host_platform == 'osx':
         # Cross-compilation using MinGW
-        if env['bits'] == '64':
-            env['CXX'] = 'x86_64-w64-mingw32-g++'
-            env['AR'] = "x86_64-w64-mingw32-ar"
-            env['RANLIB'] = "x86_64-w64-mingw32-ranlib"
-            env['LINK'] = "x86_64-w64-mingw32-g++"
-        elif env['bits'] == '32':
-            env['CXX'] = 'i686-w64-mingw32-g++'
-            env['AR'] = "i686-w64-mingw32-ar"
-            env['RANLIB'] = "i686-w64-mingw32-ranlib"
-            env['LINK'] = "i686-w64-mingw32-g++"
+        env['CXX'] = 'x86_64-w64-mingw32-g++'
+        env['AR'] = "x86_64-w64-mingw32-ar"
+        env['RANLIB'] = "x86_64-w64-mingw32-ranlib"
+        env['LINK'] = "x86_64-w64-mingw32-g++"
 
     # Native or cross-compilation using MinGW
     if host_platform == 'linux' or host_platform == 'osx':
