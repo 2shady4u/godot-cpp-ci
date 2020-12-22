@@ -36,7 +36,10 @@ jobs:
 
       - name: Compilation
         run: |
-          if not exist "gdnative_cpp_example\demo\bin\win64" mkdir gdnative_cpp_example\demo\bin\win64
+          if(-Not (Test-Path -Path "gdnative_cpp_example\demo\bin\win64"))
+          {
+            mkdir gdnative_cpp_example\demo\bin\win64
+          }
           cd gdnative_cpp_example
           cd godot-cpp
           scons platform=windows bits=64 target=debug generate_bindings=yes -j4
