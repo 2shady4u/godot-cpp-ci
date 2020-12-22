@@ -34,7 +34,7 @@ jobs:
           python --version
           scons --version
 
-      - name: Linux Build
+      - name: Compilation
         run: |
           mkdir -v -p gdnative_cpp_example/demo/bin/osx
           cd gdnative_cpp_example

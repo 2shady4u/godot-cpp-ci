@@ -1,5 +1,22 @@
-#!python
-import os, subprocess
+#!/usr/bin/env python
+
+import os
+import sys
+import subprocess
+
+# Try to detect the host platform automatically.
+# This is used if no `platform` argument is passed
+if sys.platform.startswith('linux'):
+    host_platform = 'linux'
+elif sys.platform == 'darwin':
+    host_platform = 'osx'
+elif sys.platform == 'win32' or sys.platform == 'msys':
+    host_platform = 'windows'
+else:
+    raise ValueError(
+        'Could not detect platform automatically, please specify with '
+        'platform=<platform>'
+    )
 
 opts = Variables([], ARGUMENTS)
 
@@ -7,12 +24,36 @@ opts = Variables([], ARGUMENTS)
 env = DefaultEnvironment()
 
 # Define our options
-opts.Add(EnumVariable('target', "Compilation target", 'debug', ['d', 'debug', 'r', 'release']))
-opts.Add(EnumVariable('platform', "Compilation platform", '', ['', 'windows', 'x11', 'linux', 'osx']))
-opts.Add(EnumVariable('p', "Compilation target, alias for 'platform'", '', ['', 'windows', 'x11', 'linux', 'osx']))
-opts.Add(BoolVariable('use_llvm', "Use the LLVM / Clang compiler", 'no'))
-opts.Add(PathVariable('target_path', 'The path where the lib is installed.', 'demo/bin/'))
-opts.Add(PathVariable('target_name', 'The library name.', 'libgdexample', PathVariable.PathAccept))
+opts.Add(EnumVariable(
+    'platform',
+    'Target platform',
+    host_platform,
+    allowed_values=('linux', 'osx', 'windows'),
+    ignorecase=2
+))
+opts.Add(EnumVariable(
+    'target',
+    'Compilation target',
+    'debug',
+    allowed_values=('debug', 'release'),
+    ignorecase=2
+))
+opts.Add(BoolVariable(
+    'use_llvm',
+    'Use the LLVM compiler - only effective when targeting Linux',
+    False
+))
+opts.Add(PathVariable(
+    'target_path', 
+    'The path where the lib is installed.', 
+    'demo/bin/'
+))
+opts.Add(PathVariable(
+    'target_name', 
+    'The library name.', 
+    'libgdexample', 
+    PathVariable.PathAccept
+))
 
 # Local dependency paths, adapt them to your setup
 godot_headers_path = "godot-cpp/godot_headers/"
@@ -22,20 +63,11 @@ cpp_library = "libgodot-cpp"
 # only support 64 at this time..
 bits = 64
 
+env = Environment(ENV = os.environ)
 # Updates the environment with the option variables.
 opts.Update(env)
-
-# Process some arguments
-if env['use_llvm']:
-    env['CC'] = 'clang'
-    env['CXX'] = 'clang++'
-
-if env['p'] != '':
-    env['platform'] = env['p']
-
-if env['platform'] == '':
-    print("No valid target platform selected.")
-    quit()
+# Generates help for the -h scons option.
+Help(opts.GenerateHelpText(env))
 
 # For the reference:
 # - CCFLAGS are compilation flags shared between C and C++
@@ -45,46 +77,95 @@ if env['platform'] == '':
 # - CPPDEFINES are for pre-processor defines
 # - LINKFLAGS are for linking flags
 
-# Check our platform specifics
-if env['platform'] == "osx":
-    env['target_path'] += 'osx/'
-    cpp_library += '.osx'
-    env.Append(CCFLAGS=['-arch', 'x86_64'])
-    env.Append(CXXFLAGS=['-std=c++17'])
-    env.Append(LINKFLAGS=['-arch', 'x86_64'])
-    if env['target'] in ('debug', 'd'):
-        env.Append(CCFLAGS=['-g', '-O2'])
-    else:
-        env.Append(CCFLAGS=['-g', '-O3'])
+# This makes sure to keep the session environment variables on Windows.
+# This way, you can run SCons in a Visual Studio 2017 prompt and it will find
+# all the required tools
+if host_platform == 'windows' and env['platform'] != 'android':
+    env = Environment(TARGET_ARCH='amd64')
+    opts.Update(env)
 
-elif env['platform'] in ('x11', 'linux'):
+if env['platform'] == 'linux':
     env['target_path'] += 'x11/'
     cpp_library += '.linux'
-    env.Append(CCFLAGS=['-fPIC'])
-    env.Append(CXXFLAGS=['-std=c++17'])
-    if env['target'] in ('debug', 'd'):
-        env.Append(CCFLAGS=['-g3', '-Og'])
-    else:
-        env.Append(CCFLAGS=['-g', '-O3'])
 
-elif env['platform'] == "windows":
+    if env['use_llvm']:
+        env['CXX'] = 'clang++'
+
+    env.Append(CCFLAGS=['-fPIC', '-g', '-std=c++14', '-Wwrite-strings'])
+    env.Append(LINKFLAGS=["-Wl,-R,'$$ORIGIN'"])
+
+    if env['target'] == 'debug':
+        env.Append(CCFLAGS=['-Og'])
+    elif env['target'] == 'release':
+        env.Append(CCFLAGS=['-O3'])
+
+    if env['bits'] == '64':
+        env.Append(CCFLAGS=['-m64'])
+        env.Append(LINKFLAGS=['-m64'])
+    elif env['bits'] == '32':
+        env.Append(CCFLAGS=['-m32'])
+        env.Append(LINKFLAGS=['-m32'])
+
+elif env['platform'] == 'osx':
+    env['target_path'] += 'osx/'
+    cpp_library += '.osx'
+
+    # Use Clang on macOS by default
+    env['CXX'] = 'clang++'
+
+    if env['bits'] == '32':
+        raise ValueError(
+            'Only 64-bit builds are supported for the macOS target.'
+        )
+
+    env.Append(CCFLAGS=['-g', '-std=c++14', '-arch', 'x86_64'])
+    env.Append(LINKFLAGS=[
+        '-arch',
+        'x86_64',
+        '-framework',
+        'Cocoa',
+        '-Wl,-undefined,dynamic_lookup',
+    ])
+
+    if env['target'] == 'debug':
+        env.Append(CCFLAGS=['-Og'])
+    elif env['target'] == 'release':
+        env.Append(CCFLAGS=['-O3'])
+
+elif env['platform'] == 'windows':
     env['target_path'] += 'win64/'
     cpp_library += '.windows'
 
-    # Cross-compilation using MinGW
-    env['CXX'] = 'x86_64-w64-mingw32-g++'
-    env['AR'] = "x86_64-w64-mingw32-ar"
-    env['RANLIB'] = "x86_64-w64-mingw32-ranlib"
-    env['LINK'] = "x86_64-w64-mingw32-g++"
+    if host_platform == 'windows':
+        # MSVC
+        env.Append(LINKFLAGS=['/WX'])
+        if env['target'] == 'debug':
+            env.Append(CCFLAGS=['/Z7', '/Od', '/EHsc', '/D_DEBUG', '/MDd'])
+        elif env['target'] == 'release':
+            env.Append(CCFLAGS=['/O2', '/EHsc', '/DNDEBUG', '/MD'])
 
-    # These options are for a release build even using target=debug
-    env.Append(CCFLAGS=['-O3', '-std=c++14', '-Wwrite-strings'])
-    env.Append(LINKFLAGS=[
-        '--static',
-        '-Wl,--no-undefined',
-        '-static-libgcc',
-        '-static-libstdc++',
-    ])
+    elif host_platform == 'linux' or host_platform == 'osx':
+        # Cross-compilation using MinGW
+        if env['bits'] == '64':
+            env['CXX'] = 'x86_64-w64-mingw32-g++'
+            env['AR'] = "x86_64-w64-mingw32-ar"
+            env['RANLIB'] = "x86_64-w64-mingw32-ranlib"
+            env['LINK'] = "x86_64-w64-mingw32-g++"
+        elif env['bits'] == '32':
+            env['CXX'] = 'i686-w64-mingw32-g++'
+            env['AR'] = "i686-w64-mingw32-ar"
+            env['RANLIB'] = "i686-w64-mingw32-ranlib"
+            env['LINK'] = "i686-w64-mingw32-g++"
+
+    # Native or cross-compilation using MinGW
+    if host_platform == 'linux' or host_platform == 'osx':
+        env.Append(CCFLAGS=['-g', '-O3', '-std=c++14', '-Wwrite-strings'])
+        env.Append(LINKFLAGS=[
+            '--static',
+            '-Wl,--no-undefined',
+            '-static-libgcc',
+            '-static-libstdc++',
+        ])
 
 if env['target'] in ('debug', 'd'):
     cpp_library += '.debug'
@@ -105,6 +186,3 @@ sources = Glob('src/*.cpp')
 library = env.SharedLibrary(target=env['target_path'] + env['target_name'] , source=sources)
 
 Default(library)
-
-# Generates help for the -h scons option.
-Help(opts.GenerateHelpText(env))
