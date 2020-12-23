@@ -156,7 +156,6 @@ opts.Add(PathVariable(
 # Local dependency paths, adapt them to your setup
 godot_headers_path = "godot-cpp/godot_headers/"
 cpp_bindings_path = "godot-cpp/"
-cpp_library = "libgodot-cpp"
 
 env = Environment(ENV = os.environ)
 # Updates the environment with the option variables.
@@ -195,13 +194,18 @@ if host_platform == 'windows':
 if env['bits'] == 'default':
     env['bits'] = '64' if is64 else '32'
 
+arch_suffix = env['bits']
+if env['platform'] == 'android':
+    arch_suffix = env['android_arch']
+if env['platform'] == 'ios':
+    arch_suffix = env['ios_arch']
+
 ###################
 ####FLAGS##########
 ###################
 
 if env['platform'] == 'linux':
     env['target_path'] += 'x11/'
-    cpp_library += '.linux'
 
     if env['use_llvm']:
         env['CXX'] = 'clang++'
@@ -223,7 +227,6 @@ if env['platform'] == 'linux':
 
 elif env['platform'] == 'osx':
     env['target_path'] += 'osx/'
-    cpp_library += '.osx'
 
     # Use Clang on macOS by default
     env['CXX'] = 'clang++'
@@ -249,7 +252,6 @@ elif env['platform'] == 'osx':
 
 elif env['platform'] == 'ios':
     env['target_path'] += 'ios/'
-    cpp_library += '.ios'
 
     if env['ios_arch'] == 'x86_64':
         sdk_name = 'iphonesimulator'
@@ -289,7 +291,6 @@ elif env['platform'] == 'ios':
 
 elif env['platform'] == 'windows':
     env['target_path'] += 'win64/'
-    cpp_library += '.windows'
 
     if host_platform == 'windows' and not env['use_mingw']:
         # MSVC
@@ -327,7 +328,6 @@ elif env['platform'] == 'windows':
 
 elif env['platform'] == 'android':
     env['target_path'] += 'armv7/'
-    cpp_library += '.android'
 
     if host_platform == 'windows':
         env = env.Clone(tools=['mingw'])
@@ -397,22 +397,15 @@ elif env['platform'] == 'android':
 #####################
 #ADD SOURCES#########
 #####################
-
-if env['target'] in ('debug', 'd'):
-    cpp_library += '.debug'
-else:
-    cpp_library += '.release'
-
-cpp_library += '.' + env['bits']
-if env['platform'] == 'android':
-    cpp_library += '.' + env['android_arch']
-if env['platform'] == 'ios':
-    cpp_library += '.' + env['ios_arch']
+cpp_bindings_libname = 'libgodot-cpp.{}.{}.{}'.format(
+                        env['platform'],
+                        env['target'],
+                        arch_suffix)
 
 # make sure our binding library is properly includes
 env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/'])
 env.Append(LIBPATH=[cpp_bindings_path + 'bin/'])
-env.Append(LIBS=[cpp_library])
+env.Append(LIBS=[cpp_bindings_libname])
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['src/'])
