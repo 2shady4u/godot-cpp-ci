@@ -4,6 +4,11 @@ import os
 import sys
 import subprocess
 
+def add_sources(sources, dir, extension):
+    for f in os.listdir(dir):
+        if f.endswith('.' + extension):
+            sources.append(dir + '/' + f)
+
 if sys.version_info < (3,):
     def decode_utf8(x):
         return x
@@ -48,10 +53,15 @@ if (os.name=="nt"):
 
         return rv
 
-def add_sources(sources, dir, extension):
-    for f in os.listdir(dir):
-        if f.endswith('.' + extension):
-            sources.append(dir + '/' + f)
+
+def sys_exec(args):
+    proc = subprocess.Popen(args, stdout=subprocess.PIPE, text=True)
+    (out, err) = proc.communicate()
+    return out.rstrip("\r\n").lstrip()
+
+#################
+#OPTIONS#########
+#################
 
 # Try to detect the host platform automatically.
 # This is used if no `platform` argument is passed
@@ -163,9 +173,6 @@ if (
 ):
     is64 = True
 
-if env['bits'] == 'default':
-    env['bits'] = '64' if is64 else '32'
-
 # For the reference:
 # - CCFLAGS are compilation flags shared between C and C++
 # - CFLAGS are for C-specific compilation flags
@@ -177,13 +184,20 @@ if env['bits'] == 'default':
 # This makes sure to keep the session environment variables on Windows.
 # This way, you can run SCons in a Visual Studio 2017 prompt and it will find
 # all the required tools
-if host_platform == 'windows' and env['platform'] != 'android':
-    if env['bits'] == '64':
-        env = Environment(TARGET_ARCH='amd64')
-    elif env['bits'] == '32':
-        env = Environment(TARGET_ARCH='x86')
-
+if host_platform == 'windows':
+    if env['platform'] != 'android':
+        if env['bits'] == '64':
+            env = Environment(TARGET_ARCH='amd64')
+        elif env['bits'] == '32':
+            env = Environment(TARGET_ARCH='x86')
     opts.Update(env)
+
+if env['bits'] == 'default':
+    env['bits'] = '64' if is64 else '32'
+
+###################
+####FLAGS##########
+###################
 
 if env['platform'] == 'linux':
     env['target_path'] += 'x11/'
@@ -287,10 +301,16 @@ elif env['platform'] == 'windows':
 
     elif host_platform == 'linux' or host_platform == 'osx':
         # Cross-compilation using MinGW
-        env['CXX'] = 'x86_64-w64-mingw32-g++'
-        env['AR'] = "x86_64-w64-mingw32-ar"
-        env['RANLIB'] = "x86_64-w64-mingw32-ranlib"
-        env['LINK'] = "x86_64-w64-mingw32-g++"
+        if env['bits'] == '64':
+            env['CXX'] = 'x86_64-w64-mingw32-g++'
+            env['AR'] = "x86_64-w64-mingw32-ar"
+            env['RANLIB'] = "x86_64-w64-mingw32-ranlib"
+            env['LINK'] = "x86_64-w64-mingw32-g++"
+        elif env['bits'] == '32':
+            env['CXX'] = 'i686-w64-mingw32-g++'
+            env['AR'] = "i686-w64-mingw32-ar"
+            env['RANLIB'] = "i686-w64-mingw32-ranlib"
+            env['LINK'] = "i686-w64-mingw32-g++"
     elif host_platform == 'windows' and env['use_mingw']:
         env = env.Clone(tools=['mingw'])
         env["SPAWN"] = mySpawn
@@ -361,9 +381,22 @@ elif env['platform'] == 'android':
     env['CC'] = toolchain + "/bin/clang"
     env['CXX'] = toolchain + "/bin/clang++"
     env['AR'] = toolchain + "/bin/" + arch_info['tool_path'] + "-ar"
+    env["AS"] = toolchain + "/bin/" + arch_info['tool_path'] + "-as"
+    env["LD"] = toolchain + "/bin/" + arch_info['tool_path'] + "-ld"
+    env["STRIP"] = toolchain + "/bin/" + arch_info['tool_path'] + "-strip"
+    env["RANLIB"] = toolchain + "/bin/" + arch_info['tool_path'] + "-ranlib"
+    env['OBJCOPY'] = toolchain + "/bin/" + arch_info['tool_path'] + "-objcopy"
+    env['LINK'] = toolchain + "/bin/clang++"
+    target_platform = env['ANDROID_NDK_ROOT'] + ("/platforms/android-%s" % api_level) + ('/%s/usr/lib' % arch_info['target_platform'])
+    env['SHLINKFLAGS'] = ["-Wl", "-shared", "--sysroot=%s" % target_platform, "-Wl", "-z", "noexecstack"]
 
-    env.Append(CCFLAGS=['--target=' + arch_info['target'] + env['android_api_level'], '-march=' + arch_info['march'], '-fPIC'])#, '-fPIE', '-fno-addrsig', '-Oz'])
-    env.Append(CCFLAGS=arch_info['ccflags'])
+    env.Append(CCFLAGS=['--target=' + arch_info['target'] + env['android_api_level'], '-march=' + arch_info['march'], '-fPIC'])
+    env.Append(CCFLAGS= arch_info['ccflags'])
+    env.Append(CPPDEFINES = "-DANDROID")
+
+#####################
+#ADD SOURCES#########
+#####################
 
 if env['target'] in ('debug', 'd'):
     cpp_library += '.debug'
