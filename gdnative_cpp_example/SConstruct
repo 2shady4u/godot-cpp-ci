@@ -361,18 +361,18 @@ elif env['platform'] == 'android':
     arch_info_table = {
         "armv7" : {
             "march":"armv7-a", "target":"armv7a-linux-androideabi", "tool_path":"arm-linux-androideabi", "compiler_path":"armv7a-linux-androideabi",
-            "ccflags" : ['-mfpu=neon']
+            "ccflags" : ['-mfpu=neon'], "target_platform": "arch-arm"
             },
         "arm64v8" : {
             "march":"armv8-a", "target":"aarch64-linux-android", "tool_path":"aarch64-linux-android", "compiler_path":"aarch64-linux-android",
-            "ccflags" : []
+            "ccflags" : [], "target_platform": "arch-arm64"
             },
         "x86" : {
             "march":"i686", "target":"i686-linux-android", "tool_path":"i686-linux-android", "compiler_path":"i686-linux-android",
-            "ccflags" : ['-mstackrealign']
+            "ccflags" : ['-mstackrealign'], "target_platform": "arch-x86"
             },
         "x86_64" : {"march":"x86-64", "target":"x86_64-linux-android", "tool_path":"x86_64-linux-android", "compiler_path":"x86_64-linux-android",
-            "ccflags" : []
+            "ccflags" : [], "target_platform": "arch-x86_64"
         }
     }
     arch_info = arch_info_table[env['android_arch']]
