@@ -42,6 +42,7 @@ jobs:
         env:
           ANDROID_NDK_ROOT: /usr/local/lib/android/sdk/ndk-bundle
         run: |
+          sudo find /usr/ -name crti*
           LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LIBRARY_PATH 
           export LIBRARY_PATH
           mkdir -v -p gdnative_cpp_example/demo/bin/android/arm64_v8a
