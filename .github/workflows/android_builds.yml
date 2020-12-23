@@ -47,10 +47,7 @@ jobs:
           cd godot-cpp
           scons platform=android bits=64 android_arch=arm64v8 target=debug generate_bindings=yes -j4
           cd ..
-          $ANDROID_NDK_ROOT/ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk APP_PLATFORM=android-21 NDK_LIBS_OUT=./demo/bin/android/arm64_v8a
-          sudo find /usr/ -name libgdexample*
-          sudo find /home/ -name libgdexample*
-
+          $ANDROID_NDK_ROOT/ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk APP_PLATFORM=android-21 NDK_LIBS_OUT=./demo/bin/android
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
