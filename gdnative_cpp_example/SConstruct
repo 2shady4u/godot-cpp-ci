@@ -402,6 +402,8 @@ cpp_bindings_libname = 'libgodot-cpp.{}.{}.{}'.format(
                         env['target'],
                         arch_suffix)
 
+print(cpp_bindings_libname)
+
 # make sure our binding library is properly includes
 env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/'])
 env.Append(LIBPATH=[cpp_bindings_path + 'bin/'])
