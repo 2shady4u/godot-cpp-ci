@@ -22,3 +22,5 @@ godot-cpp/include/core \
 godot-cpp/include/gen \
 
 LOCAL_STATIC_LIBRARIES := godot-prebuilt
+
+include $(BUILD_SHARED_LIBRARY)
