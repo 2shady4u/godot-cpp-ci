@@ -7,7 +7,7 @@ reloadable=false
 
 [entry]
 
-Android.arm64-v8a="res://bin/android/arm64-v8a/lidgdexample.so"
+Android.arm64-v8a="res://bin/android/arm64-v8a/libgdexample.so"
 OSX.64="res://bin/osx/libgdexample.dylib"
 Windows.64="res://bin/win64/libgdexample.dll"
 X11.64="res://bin/x11/libgdexample.so"
@@ -15,8 +15,8 @@ iOS.arm64="res://bin/ios/lidgdexample.a"
 
 [dependencies]
 
-Android.arm64-v8a=[]
-OSX.64=[]
-Windows.64=[]
-X11.64=[]
-iOS.arm64=[]
+Android.arm64-v8a=[  ]
+OSX.64=[  ]
+Windows.64=[  ]
+X11.64=[  ]
+iOS.arm64=[  ]
