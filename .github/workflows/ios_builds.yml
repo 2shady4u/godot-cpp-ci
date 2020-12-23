@@ -1,0 +1,53 @@
+name: 🍏 iOS Builds
+on: push
+
+# Global Settings
+env:
+  GODOT_BASE_BRANCH: master
+  SCONSFLAGS: platform=iphone verbose=yes warnings=extra werror=yes --jobs=2
+  SCONS_CACHE_LIMIT: 4096
+
+jobs:
+  ios-compilation:
+    name: iOS Compilation
+    runs-on: "macos-latest"
+    name: Template (target=release, tools=no)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+          submodules: recursive
+
+      # Use python 3.x release (works cross platform)
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v2
+        with:
+          # Semantic version range syntax or exact version of a Python version
+          python-version: '3.x'
+          # Optional - x64 or x86 architecture, defaults to x64
+          architecture: 'x64'
+
+      # You can test your matrix by printing the current Python version
+      - name: Configuring Python packages
+        run: |
+          python -c "import sys; print(sys.version)"
+          python -m pip install scons
+          python --version
+          scons --version
+
+      - name: Compilation
+        run: |
+          mkdir -v -p gdnative_cpp_example/demo/bin/ios
+          cd gdnative_cpp_example
+          cd godot-cpp
+          scons platform=ios bits=64 target=debug generate_bindings=yes -j4
+          cd ..
+          scons platform=ios
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: ios
+          path: gdnative_cpp_example/demo/bin/ios
