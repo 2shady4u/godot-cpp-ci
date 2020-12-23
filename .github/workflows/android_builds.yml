@@ -45,9 +45,9 @@ jobs:
           mkdir -v -p gdnative_cpp_example/demo/bin/armv7
           cd gdnative_cpp_example
           cd godot-cpp
-          scons platform=android bits=64 target=debug generate_bindings=yes -j4
+          scons platform=android bits=64 android_arch=arm64v8 target=debug generate_bindings=yes -j4
           cd ..
-          scons platform=android
+          scons platform=android android_arch=arm64v8
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v1

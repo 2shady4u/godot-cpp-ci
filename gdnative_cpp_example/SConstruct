@@ -402,18 +402,6 @@ cpp_bindings_libname = 'libgodot-cpp.{}.{}.{}'.format(
                         env['target'],
                         arch_suffix)
 
-env['SHLIBPREFIX'] = ''
-
-platform = env['platform']
-if platform == "osx":
-    cpp_bindings_libname += '.a'
-elif platform == "windows":
-    cpp_bindings_libname += '.lib'
-elif platform == "ios":
-    cpp_bindings_libname += '.a'
-elif platform == "android":
-    cpp_bindings_libname += '.a'
-
 env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/'])
 env.Append(LIBS=[cpp_bindings_libname])
 env.Append(LIBPATH=[cpp_bindings_path + 'bin/'])
