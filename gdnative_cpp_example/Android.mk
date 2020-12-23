@@ -16,9 +16,9 @@ LOCAL_SRC_FILES := \
 src/gdlibrary.cpp \
 
 LOCAL_C_INCLUDES := \
-../godot-cpp/godot_headers \
-../godot-cpp/include/ \
-../godot-cpp/include/core \
-../godot-cpp/include/gen \
+godot-cpp/godot_headers \
+godot-cpp/include/ \
+godot-cpp/include/core \
+godot-cpp/include/gen \
 
 LOCAL_STATIC_LIBRARIES := godot-prebuilt
