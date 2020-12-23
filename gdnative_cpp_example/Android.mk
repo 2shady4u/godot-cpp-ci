@@ -14,6 +14,7 @@ LOCAL_LDLIBS := -llog
 
 LOCAL_SRC_FILES := \
 src/gdlibrary.cpp \
+src/gdexample.cpp \
 
 LOCAL_C_INCLUDES := \
 godot-cpp/godot_headers \
