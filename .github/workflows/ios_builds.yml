@@ -11,7 +11,6 @@ jobs:
   ios-compilation:
     name: iOS Compilation
     runs-on: "macos-latest"
-    name: Template (target=release, tools=no)
 
     steps:
       - name: Checkout

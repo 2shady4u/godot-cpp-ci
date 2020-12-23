@@ -370,10 +370,11 @@ if env['target'] in ('debug', 'd'):
 else:
     cpp_library += '.release'
 
+cpp_library += '.' + env['bits']
 if env['platform'] == 'android':
-    cpp_library += '.armv7'
-
-cpp_library += '.' + str(bits)
+    cpp_library += '.' + env['android_arch']
+if env['platform'] == 'ios':
+    cpp_library += '.' + env['ios_arch']
 
 # make sure our binding library is properly includes
 env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/'])
