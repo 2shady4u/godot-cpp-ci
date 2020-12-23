@@ -42,14 +42,18 @@ jobs:
         env:
           ANDROID_NDK_ROOT: /usr/local/lib/android/sdk/ndk-bundle
         run: |
+          mkdir -v -p gdnative_cpp_example/demo/bin/android/armeabi-v7a
           mkdir -v -p gdnative_cpp_example/demo/bin/android/arm64-v8a
+          mkdir -v -p gdnative_cpp_example/demo/bin/android/x86
           cd gdnative_cpp_example
           cd godot-cpp
+          scons platform=android bits=64 android_arch=armv7 target=debug generate_bindings=yes -j4
           scons platform=android bits=64 android_arch=arm64v8 target=debug generate_bindings=yes -j4
+          scons platform=android bits=64 android_arch=x86 target=debug generate_bindings=yes -j4
           cd ..
           $ANDROID_NDK_ROOT/ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk APP_PLATFORM=android-21 NDK_LIBS_OUT=./demo/bin/android
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
           name: android
-          path: gdnative_cpp_example/demo/bin/android/arm64-v8a
+          path: gdnative_cpp_example/demo/bin/android/

@@ -41,9 +41,11 @@ jobs:
           mkdir -v -p gdnative_cpp_example/demo/bin/ios
           cd gdnative_cpp_example
           cd godot-cpp
-          scons platform=ios bits=64 target=debug generate_bindings=yes -j4
+          scons platform=ios ios_arch=armv7 bits=64 target=debug generate_bindings=yes -j4
+          scons platform=ios ios_arch=arm64 bits=64 target=debug generate_bindings=yes -j4
           cd ..
-          scons platform=ios
+          scons platform=ios ios_arch=armv7
+          scons platform=ios ios_arch=arm64
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
