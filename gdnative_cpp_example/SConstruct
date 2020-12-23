@@ -327,7 +327,7 @@ elif env['platform'] == 'windows':
 
 elif env['platform'] == 'android':
     env['target_path'] += 'armv7/'
-    cpp_library += '.armv7'
+    cpp_library += '.android'
 
     if host_platform == 'windows':
         env = env.Clone(tools=['mingw'])
