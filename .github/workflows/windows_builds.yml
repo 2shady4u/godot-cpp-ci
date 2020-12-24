@@ -4,10 +4,7 @@ on:
     branches: [ master, main ]
 
 # Global Settings
-# SCONS_CACHE for windows must be set in the build environment
 env:
-  SCONS_CACHE_MSVC_CONFIG: true
-  SCONS_CACHE_LIMIT: 3072
   PROJECT_FOLDER: gdnative_cpp_example
   EXPORT_FOLDER: gdnative_cpp_example\demo\bin\win64
 
@@ -21,19 +18,6 @@ jobs:
         with:
           lfs: true
           submodules: recursive
-
-      # Upload cache on completion and check it out now
-      # Editing this is pretty dangerous for Windows since it can break and needs to be properly tested with a fresh cache.
-      - name: Load .scons_cache directory
-        id: windows-cache
-        uses: RevoluPowered/cache@v2.1
-        with:
-          path: /.scons_cache/
-          key: ${{github.job}}-${{github.ref}}-${{github.sha}}
-          restore-keys: |
-            ${{github.job}}-${{github.ref}}-${{github.sha}}
-            ${{github.job}}-${{github.ref}}
-            ${{github.job}}
 
       # Use python 3.x release (works cross platform; best to keep self contained in it's own step)
       - name: Set up Python 3.x
@@ -53,8 +37,6 @@ jobs:
           scons --version
 
       - name: Compilation
-        env:
-          SCONS_CACHE: /.scons_cache/
         run: |
           if(-Not (Test-Path -Path ${{env.EXPORT_FOLDER}}))
           {
