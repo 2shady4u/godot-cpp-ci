@@ -5,8 +5,8 @@ on:
 
 # Global Settings
 env:
-  GODOT_BASE_BRANCH: master
-  SCONSFLAGS: platform=iphone verbose=yes warnings=extra werror=yes --jobs=2
+  PROJECT_FOLDER: gdnative_cpp_example
+  EXPORT_FOLDER: gdnative_cpp_example/demo/bin/ios
   SCONS_CACHE_LIMIT: 4096
 
 jobs:
@@ -40,9 +40,9 @@ jobs:
 
       - name: Compilation
         run: |
-          mkdir -v -p gdnative_cpp_example/demo/bin/ios/armv7
-          mkdir -v -p gdnative_cpp_example/demo/bin/ios/arm64
-          cd gdnative_cpp_example
+          mkdir -v -p ${{env.EXPORT_FOLDER}}/armv7
+          mkdir -v -p ${{env.EXPORT_FOLDER}}/arm64
+          cd ${{env.PROJECT_FOLDER}}
           cd godot-cpp
           scons platform=ios ios_arch=armv7 bits=64 target=debug generate_bindings=yes -j4
           scons platform=ios ios_arch=arm64 bits=64 target=debug generate_bindings=yes -j4
@@ -54,4 +54,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: ios
-          path: gdnative_cpp_example/demo/bin/ios
+          path: ${{env.EXPORT_FOLDER}}
