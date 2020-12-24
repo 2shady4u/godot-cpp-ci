@@ -6,7 +6,8 @@ on:
 # Global Settings
 env:
   PROJECT_FOLDER: gdnative_cpp_example
-  EXPORT_FOLDER: gdnative_cpp_example\demo\bin\win64
+  TARGET_PATH: demo\bin\win64\
+  TARGET_NAME: libgdexample
 
 jobs:
   windows-compilation:
@@ -38,18 +39,18 @@ jobs:
 
       - name: Compilation
         run: |
-          if(-Not (Test-Path -Path ${{env.EXPORT_FOLDER}}))
+          if(-Not (Test-Path -Path ${{env.PROJECT_FOLDER}}\${{env.TARGET_PATH}}))
           {
-            mkdir ${{env.EXPORT_FOLDER}}
+            mkdir ${{env.PROJECT_FOLDER}}\${{env.TARGET_PATH}}
           }
           cd ${{env.PROJECT_FOLDER}}
           cd godot-cpp
           scons platform=windows bits=64 target=debug generate_bindings=yes -j4
           cd ..
-          scons platform=windows
+          scons platform=windows target_path=${{env.TARGET_PATH}} target_name=${{env.TARGET_NAME}}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
           name: win64
-          path: ${{env.EXPORT_FOLDER}}
+          path: ${{env.PROJECT_FOLDER}}\${{env.TARGET_PATH}}

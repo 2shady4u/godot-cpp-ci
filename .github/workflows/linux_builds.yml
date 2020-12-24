@@ -6,8 +6,8 @@ on:
 # Global Settings
 env:
   PROJECT_FOLDER: gdnative_cpp_example
-  EXPORT_FOLDER: gdnative_cpp_example/demo/bin/x11
-  SCONS_CACHE_LIMIT: 4096
+  TARGET_PATH: demo/bin/x11/
+  TARGET_NAME: libgdexample
 
 jobs:
   linux-compilation:
@@ -26,18 +26,6 @@ jobs:
           sudo apt-get install build-essential pkg-config libx11-dev libxcursor-dev \
             libxinerama-dev libgl1-mesa-dev libglu-dev libasound2-dev libpulse-dev libudev-dev libxi-dev libxrandr-dev yasm
 
-      # Upload cache on completion and check it out now
-      - name: Load .scons_cache directory
-        id: linux-compilation-cache
-        uses: actions/cache@v2
-        with:
-          path: ${{github.workspace}}/.scons_cache/
-          key: ${{github.job}}-${{github.ref}}-${{github.sha}}
-          restore-keys: |
-            ${{github.job}}-${{github.ref}}-${{github.sha}}
-            ${{github.job}}-${{github.ref}}
-            ${{github.job}}
-
       # Use python 3.x release (works cross platform; best to keep self contained in it's own step)
       - name: Set up Python 3.x
         uses: actions/setup-python@v2
@@ -55,19 +43,19 @@ jobs:
           python --version
           scons --version
 
+      # Linux shared libraries are humongous (>70MB) for some reason.. don't forget to strip them!
       - name: Compilation
-        env:
-          SCONS_CACHE: ${{github.workspace}}/.scons_cache/
         run: |
-          mkdir -v -p ${{env.EXPORT_FOLDER}}
+          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}
           cd ${{env.PROJECT_FOLDER}}
           cd godot-cpp
           scons platform=linux bits=64 target=debug generate_bindings=yes -j4
           cd ..
-          scons platform=linux
+          scons platform=linux target_path=${{env.TARGET_PATH}} target_name=${{env.TARGET_NAME}}
+          strip --strip-all ${{env.TARGET_PATH}}/${{env.TARGET_NAME}}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
           name: linux
-          path: ${{env.EXPORT_FOLDER}}
+          path: ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}

@@ -6,8 +6,8 @@ on:
 # Global Settings
 env:
   PROJECT_FOLDER: gdnative_cpp_example
-  EXPORT_FOLDER: /demo/bin/android
-  SCONS_CACHE_LIMIT: 4096
+  TARGET_PATH: demo/bin/android/
+  TARGET_NAME: libgdexample
 
 jobs:
   android-compilation:
@@ -45,18 +45,18 @@ jobs:
         env:
           ANDROID_NDK_ROOT: /usr/local/lib/android/sdk/ndk-bundle
         run: |
-          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.EXPORT_FOLDER}}/armeabi-v7a
-          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.EXPORT_FOLDER}}/arm64-v8a
-          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.EXPORT_FOLDER}}/x86
+          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}/armeabi-v7a
+          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}/arm64-v8a
+          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}/x86
           cd ${{env.PROJECT_FOLDER}}
           cd godot-cpp
           scons platform=android bits=64 android_arch=armv7 target=debug generate_bindings=yes -j4
           scons platform=android bits=64 android_arch=arm64v8 target=debug generate_bindings=yes -j4
           scons platform=android bits=64 android_arch=x86 target=debug generate_bindings=yes -j4
           cd ..
-          $ANDROID_NDK_ROOT/ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk APP_PLATFORM=android-21 NDK_LIBS_OUT=.${{env.EXPORT_FOLDER}}
+          $ANDROID_NDK_ROOT/ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk APP_PLATFORM=android-21 NDK_LIBS_OUT=./${{env.TARGET_PATH}}
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
           name: android
-          path: ${{env.PROJECT_FOLDER}}/${{env.EXPORT_FOLDER}}
+          path: ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}

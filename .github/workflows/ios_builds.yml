@@ -6,14 +6,13 @@ on:
 # Global Settings
 env:
   PROJECT_FOLDER: gdnative_cpp_example
-  EXPORT_FOLDER: gdnative_cpp_example/demo/bin/ios
-  SCONS_CACHE_LIMIT: 4096
+  TARGET_PATH: demo/bin/ios/
+  TARGET_NAME: libgdexample
 
 jobs:
   ios-compilation:
     name: iOS Compilation
     runs-on: "macos-latest"
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -40,18 +39,18 @@ jobs:
 
       - name: Compilation
         run: |
-          mkdir -v -p ${{env.EXPORT_FOLDER}}/armv7
-          mkdir -v -p ${{env.EXPORT_FOLDER}}/arm64
+          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}/armv7
+          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}/arm64
           cd ${{env.PROJECT_FOLDER}}
           cd godot-cpp
           scons platform=ios ios_arch=armv7 bits=64 target=debug generate_bindings=yes -j4
           scons platform=ios ios_arch=arm64 bits=64 target=debug generate_bindings=yes -j4
           cd ..
-          scons platform=ios ios_arch=armv7
-          scons platform=ios ios_arch=arm64
+          scons platform=ios ios_arch=armv7 target_path=${{env.TARGET_PATH}} target_name=${{env.TARGET_NAME}}
+          scons platform=ios ios_arch=arm64 target_path=${{env.TARGET_PATH}} target_name=${{env.TARGET_NAME}}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
           name: ios
-          path: ${{env.EXPORT_FOLDER}}
+          path: ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}
