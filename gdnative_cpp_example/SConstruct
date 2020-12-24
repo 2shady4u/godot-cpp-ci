@@ -188,9 +188,11 @@ if env['platform'] == 'ios':
 if env['platform'] == 'linux':
 
     if env['use_llvm']:
+        env['CC'] = 'clang'
         env['CXX'] = 'clang++'
 
-    env.Append(CCFLAGS=['-fPIC', '-g', '-std=c++14', '-Wwrite-strings'])
+    env.Append(CCFLAGS=['-fPIC', '-g', '-Wwrite-strings'])
+    env.Append(CXXFLAGS=['-std=c++17'])
     env.Append(LINKFLAGS=["-Wl,-R,'$$ORIGIN'"])
 
     if env['target'] == 'debug':
@@ -208,6 +210,7 @@ if env['platform'] == 'linux':
 elif env['platform'] == 'osx':
 
     # Use Clang on macOS by default
+    env['CC'] = 'clang'
     env['CXX'] = 'clang++'
 
     if env['bits'] == '32':
@@ -215,7 +218,8 @@ elif env['platform'] == 'osx':
             'Only 64-bit builds are supported for the macOS target.'
         )
 
-    env.Append(CCFLAGS=['-g', '-std=c++14', '-arch', 'x86_64'])
+    env.Append(CCFLAGS=['-g', '-arch', 'x86_64'])
+    env.Append(CXXFLAGS=['-std=c++17'])
     env.Append(LINKFLAGS=[
         '-arch',
         'x86_64',
@@ -252,7 +256,8 @@ elif env['platform'] == 'ios':
     env['AR'] = compiler_path + 'ar'
     env['RANLIB'] = compiler_path + 'ranlib'
 
-    env.Append(CCFLAGS=['-g', '-std=c++14', '-arch', env['ios_arch'], '-isysroot', sdk_path])
+    env.Append(CCFLAGS=['-g', '-arch', env['ios_arch'], '-isysroot', sdk_path])
+    env.Append(CXXFLAGS=['-std=c++17'])
     env.Append(LINKFLAGS=[
         '-arch',
         env['ios_arch'],
@@ -281,11 +286,13 @@ elif env['platform'] == 'windows':
     elif host_platform == 'linux' or host_platform == 'osx':
         # Cross-compilation using MinGW
         if env['bits'] == '64':
+            env['CC'] = 'x86_64-w64-mingw32-g'
             env['CXX'] = 'x86_64-w64-mingw32-g++'
             env['AR'] = "x86_64-w64-mingw32-ar"
             env['RANLIB'] = "x86_64-w64-mingw32-ranlib"
             env['LINK'] = "x86_64-w64-mingw32-g++"
         elif env['bits'] == '32':
+            env['CC'] = 'i686-w64-mingw32-g'
             env['CXX'] = 'i686-w64-mingw32-g++'
             env['AR'] = "i686-w64-mingw32-ar"
             env['RANLIB'] = "i686-w64-mingw32-ranlib"
@@ -296,7 +303,8 @@ elif env['platform'] == 'windows':
 
     # Native or cross-compilation using MinGW
     if host_platform == 'linux' or host_platform == 'osx' or env['use_mingw']:
-        env.Append(CCFLAGS=['-g', '-O3', '-std=c++14', '-Wwrite-strings'])
+        env.Append(CCFLAGS=['-g', '-O3', '-Wwrite-strings'])
+        env.Append(CXXFLAGS=['-std=c++17'])
         env.Append(LINKFLAGS=[
             '--static',
             '-Wl,--no-undefined',
@@ -316,8 +324,9 @@ env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', cpp
 env.Append(LIBS=[cpp_bindings_libname])
 env.Append(LIBPATH=[cpp_bindings_path + 'bin/'])
 
-sources = []
-add_sources(sources, "./src", 'cpp')
+# tweak this if you want to use different folders, or more folders, to store your source code in.
+env.Append(CPPPATH=['src/'])
+sources = [Glob('src/*.cpp')]
 
 ###############
 #BUILD LIB#####
