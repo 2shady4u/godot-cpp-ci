@@ -1,5 +1,7 @@
 name: 🐧 Linux Builds
-on: push
+on:
+  push:
+    branches: [ master, main ]
 
 # Global Settings
 env:

@@ -1,10 +1,17 @@
 name: 🏁 Windows Builds
-on: push
+on:
+  push:
+    branches: [ master, main ]
 
 # Global Settings
+# SCONS_CACHE for windows must be set in the build environment
 env:
   GODOT_VERSION: 3.2.3
   EXPORT_NAME: test-project
+  SCONS_CACHE_MSVC_CONFIG: true
+  SCONS_CACHE_LIMIT: 3072
+  PROJECT_FOLDER: gdnative_cpp_example
+  EXPORT_FOLDER: gdnative_cpp_example\demo\bin\win64
 
 jobs:
   windows-compilation:
@@ -16,6 +23,19 @@ jobs:
         with:
           lfs: true
           submodules: recursive
+
+      # Upload cache on completion and check it out now
+      # Editing this is pretty dangerous for Windows since it can break and needs to be properly tested with a fresh cache.
+    - name: Load .scons_cache directory
+      id: windows-cache
+      uses: RevoluPowered/cache@v2.1
+      with:
+        path: /.scons_cache/
+        key: ${{github.job}}-${{github.ref}}-${{github.sha}}
+        restore-keys: |
+          ${{github.job}}-${{github.ref}}-${{github.sha}}
+          ${{github.job}}-${{github.ref}}
+          ${{github.job}}
 
       # Use python 3.x release (works cross platform; best to keep self contained in it's own step)
       - name: Set up Python 3.x
@@ -35,12 +55,14 @@ jobs:
           scons --version
 
       - name: Compilation
+        env:
+          SCONS_CACHE: /.scons_cache/
         run: |
-          if(-Not (Test-Path -Path "gdnative_cpp_example\demo\bin\win64"))
+          if(-Not (Test-Path -Path ${{env.EXPORT_FOLDER}}))
           {
-            mkdir gdnative_cpp_example\demo\bin\win64
+            mkdir ${{env.EXPORT_FOLDER}}
           }
-          cd gdnative_cpp_example
+          cd ${{env.PROJECT_FOLDER}}
           cd godot-cpp
           scons platform=windows bits=64 target=debug generate_bindings=yes -j4
           cd ..
@@ -50,4 +72,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: win64
-          path: gdnative_cpp_example/demo/bin/win64
+          path: ${{env.EXPORT_FOLDER}}

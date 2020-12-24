@@ -1,5 +1,7 @@
 name: 🍏 iOS Builds
-on: push
+on:
+  push:
+    branches: [ master, main ]
 
 # Global Settings
 env:
@@ -38,7 +40,8 @@ jobs:
 
       - name: Compilation
         run: |
-          mkdir -v -p gdnative_cpp_example/demo/bin/ios
+          mkdir -v -p gdnative_cpp_example/demo/bin/ios/armv7
+          mkdir -v -p gdnative_cpp_example/demo/bin/ios/arm64
           cd gdnative_cpp_example
           cd godot-cpp
           scons platform=ios ios_arch=armv7 bits=64 target=debug generate_bindings=yes -j4

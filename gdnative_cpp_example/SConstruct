@@ -232,7 +232,7 @@ elif env['platform'] == 'osx':
         env.Append(CCFLAGS=['-O3'])
 
 elif env['platform'] == 'ios':
-    env['target_path'] += 'ios/'
+    env['target_path'] += 'ios/' + env['ios_arch'] + '/'
 
     if env['ios_arch'] == 'x86_64':
         sdk_name = 'iphonesimulator'
