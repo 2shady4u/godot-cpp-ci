@@ -1,4 +1,5 @@
 FROM ubuntu:focal
+LABEL author="https://github.com/2shady4u/godot-cpp-ci/graphs/contributors"
 
 USER root
 ENV DEBIAN_FRONTEND=noninteractive
@@ -24,6 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libudev-dev \
     libxi-dev \
     libxrandr-dev \
-    yasm \
+    yasm \ 
+    # Install Windows cross-tools
     mingw-w64 \
     && rm -rf /var/lib/apt/lists/*
