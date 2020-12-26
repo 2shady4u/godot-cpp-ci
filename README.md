@@ -3,15 +3,15 @@ Docker image and Github Actions to automatically compile Godot C++ GDNative libr
 
 **Github Actions:**  
 
-![🏁 Windows Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%8F%81%20Windows%20Builds/badge.svg?branch=main)
-![🐧 Linux Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%90%A7%20Linux%20Builds/badge.svg?branch=main)
-![🍎 macOS Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%8D%8E%20macOS%20Builds/badge.svg?branch=main)
-![🍏 iOS Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%8D%8F%20iOS%20Builds/badge.svg?branch=main)
-![🤖 Android Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%A4%96%20Android%20Builds/badge.svg?branch=main)
+[![🏁 Windows Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%8F%81%20Windows%20Builds/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions?query=workflow%3A%22%F0%9F%8F%81+Windows+Builds%22)
+[![🐧 Linux Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%90%A7%20Linux%20Builds/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions?query=workflow%3A%22%F0%9F%90%A7+Linux+Builds%22)
+[![🍎 macOS Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%8D%8E%20macOS%20Builds/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions?query=workflow%3A%22%F0%9F%8D%8E+macOS+Builds%22)
+[![🍏 iOS Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%8D%8F%20iOS%20Builds/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions?query=workflow%3A%22%F0%9F%8D%8F+iOS+Builds%22)
+[![🤖 Android Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%A4%96%20Android%20Builds/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions?query=workflow%3A%22%F0%9F%A4%96+Android+Builds%22)
 
 **Gitlab Runners:**
 
-![Pipeline Status](https://gitlab.com/2shady4u/godot-cpp-ci/badges/main/pipeline.svg)
+[![Pipeline Status](https://gitlab.com/2shady4u/godot-cpp-ci/badges/main/pipeline.svg)](https://gitlab.com/2shady4u/godot-cpp-ci/-/pipelines)
 
 Heavily inspired and based on both the CI/CD provided by [godot-ci](https://github.com/aBARICHELLO/godot-ci) and the automated workflow of [Godot](https://github.com/godotengine/godot) itself.
 
