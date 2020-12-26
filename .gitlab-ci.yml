@@ -1,0 +1,49 @@
+image: ponders/godot-cpp-ci:latest
+
+# Cache compiled bindings between runs
+cache:
+  key: compiled-bindings
+  paths:
+    - $PROJECT_FOLDER/godot-cpp/bin/
+
+stages:
+  - export
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  PROJECT_FOLDER: gdnative_cpp_example
+  TARGET_NAME: libgdexample
+
+# Linux shared libraries are humongous (>70MB) for some reason.. don't forget to strip them!
+linux:
+  stage: export
+  variables:
+    TARGET_PATH: demo/bin/x11/
+  script:
+    - mkdir -v -p $PROJECT_FOLDER/$TARGET_PATH
+    -  cd $PROJECT_FOLDER
+    - cd godot-cpp
+    - scons platform=linux bits=64 target=debug generate_bindings=yes -j4
+    - cd ..
+    - scons platform=linux target_path=$TARGET_PATH target_name=$TARGET_NAME
+    - strip --strip-all $TARGET_PATH$TARGET_NAME.so
+  artifacts:
+    name: x11
+    paths:
+      - $PROJECT_FOLDER/$TARGET_PATH
+
+windows:
+  stage: export
+  variables:
+    TARGET_PATH: demo/bin/win64/
+  script:
+    - mkdir -v -p $PROJECT_FOLDER/$TARGET_PATH
+    - cd gdnative_cpp_example
+    - cd godot-cpp
+    - scons platform=windows bits=64 target=debug generate_bindings=yes -j4
+    - cd ..
+    - scons platform=windows target_path=$TARGET_PATH target_name=$TARGET_NAME
+  artifacts:
+    name: win64
+    paths:
+      - $PROJECT_FOLDER/$TARGET_PATH
