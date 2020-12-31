@@ -13,6 +13,7 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   PROJECT_FOLDER: gdnative_cpp_example
   TARGET_NAME: libgdexample
+  TARGET: release
 
 # Linux shared libraries are humongous (>70MB) for some reason.. don't forget to strip them!
 linux:
@@ -23,9 +24,9 @@ linux:
     - mkdir -v -p $PROJECT_FOLDER/$TARGET_PATH
     -  cd $PROJECT_FOLDER
     - cd godot-cpp
-    - scons platform=linux bits=64 target=debug generate_bindings=yes -j4
+    - scons platform=linux bits=64 target=$TARGET generate_bindings=yes -j4
     - cd ..
-    - scons platform=linux target_path=$TARGET_PATH target_name=$TARGET_NAME
+    - scons platform=linux target=$TARGET target_path=$TARGET_PATH target_name=$TARGET_NAME
     - strip --strip-all $TARGET_PATH$TARGET_NAME.so
   artifacts:
     name: x11
@@ -40,9 +41,9 @@ windows:
     - mkdir -v -p $PROJECT_FOLDER/$TARGET_PATH
     - cd gdnative_cpp_example
     - cd godot-cpp
-    - scons platform=windows bits=64 target=debug generate_bindings=yes -j4
+    - scons platform=windows bits=64 target=$TARGET generate_bindings=yes -j4
     - cd ..
-    - scons platform=windows target_path=$TARGET_PATH target_name=$TARGET_NAME
+    - scons platform=windows target=$TARGET target_path=$TARGET_PATH target_name=$TARGET_NAME
   artifacts:
     name: win64
     paths:
