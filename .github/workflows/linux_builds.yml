@@ -45,7 +45,6 @@ jobs:
           python --version
           scons --version
 
-      # Linux shared libraries are humongous (>70MB) for some reason.. don't forget to strip them!
       - name: Compilation
         run: |
           mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}
@@ -54,7 +53,6 @@ jobs:
           scons platform=linux bits=64 target=${{env.TARGET}} generate_bindings=yes -j4
           cd ..
           scons platform=linux target=${{env.TARGET}} target_path=${{env.TARGET_PATH}} target_name=${{env.TARGET_NAME}}
-          strip --strip-all ${{env.TARGET_PATH}}${{env.TARGET_NAME}}.so
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
