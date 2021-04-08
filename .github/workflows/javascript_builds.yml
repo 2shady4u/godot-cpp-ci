@@ -1,0 +1,64 @@
+name: 🌐 Javascript Builds
+on:
+  push:
+    branches: [ master, main ]
+
+env:
+  PROJECT_FOLDER: gdnative_cpp_example
+  TARGET_PATH: demo/bin/javascript/
+  TARGET_NAME: libgdexample
+  TARGET: release
+
+jobs:
+  android-compilation:
+    name: Javascript Compilation
+    runs-on: "ubuntu-20.04"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2 
+        with:
+            lfs: true
+            submodules: recursive
+
+      # Use python 3.x release (works cross platform)
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v2
+        with:
+          # Semantic version range syntax or exact version of a Python version
+          python-version: '3.x'
+          # Optional - x64 or x86 architecture, defaults to x64
+          architecture: 'x64'
+
+      - name: Configuring Python packages
+        run: |
+          python -c "import sys; print(sys.version)"
+          python -m pip install scons
+          python --version
+          scons --version
+
+      - name: Set up Emscripten latest
+          uses: mymindstorm/setup-emsdk@v6
+          with:
+            version: ${{env.EM_VERSION}}
+            actions-cache-folder: ${{env.EM_CACHE_FOLDER}}
+
+      - name: Verify Emscripten setup
+        run: |
+          emcc -v
+
+      # Install emsdk as discussed here:
+      # https://emscripten.org/docs/getting_started/downloads.html
+      - name: Compilation
+        run: |
+          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}
+          cd ${{env.PROJECT_FOLDER}}
+          cd godot-cpp
+          scons platform=javascript bits=64 target=${{env.TARGET}} generate_bindings=yes -j4
+          cd ..
+          scons platform=javascript target=${{env.TARGET}} target_path=${{env.TARGET_PATH}} target_name=${{env.TARGET_NAME}}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: javascript
+          path: ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}
