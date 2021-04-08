@@ -350,8 +350,11 @@ cpp_bindings_libname = 'libgodot-cpp.{}.{}.{}'.format(
                         arch_suffix)
 
 env.Append(CPPPATH=['.', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/'])
-env.Append(LIBS=[cpp_bindings_libname])
-env.Append(LIBPATH=[cpp_bindings_path + 'bin/'])
+if env['platform'] == "javascript":
+    env.Append(LIBPATH=[cpp_bindings_path + 'bin/' + cpp_bindings_libname])
+else:
+    env.Append(LIBS=[cpp_bindings_libname])
+    env.Append(LIBPATH=[cpp_bindings_path + 'bin/'])
 
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 env.Append(CPPPATH=['src/'])
