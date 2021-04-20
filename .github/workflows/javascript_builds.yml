@@ -10,6 +10,7 @@ env:
   TARGET: release
   GODOT_VERSION: 3.3
   RC_VERSION: 9
+  EXPORT_NAME: gdnative_cpp_example/demo/
 
 jobs:
   javascript-compilation:
@@ -84,6 +85,7 @@ jobs:
 
       - name: Copy Libraries to Project Folder
         run: |
+          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}
           cp javascript/${{env.TARGET_NAME}}.wasm ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}
 
       - name: Setup
