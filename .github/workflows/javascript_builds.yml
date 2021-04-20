@@ -10,7 +10,7 @@ env:
   TARGET: release
 
 jobs:
-  android-compilation:
+  javascript-compilation:
     name: Javascript Compilation
     runs-on: "ubuntu-20.04"
     steps:
