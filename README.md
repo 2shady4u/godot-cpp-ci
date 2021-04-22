@@ -3,11 +3,11 @@ Docker image and Github Actions to automatically compile Godot C++ GDNative libr
 
 **Github Actions:**  
 
-[![🏁 Windows Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%8F%81%20Windows%20Builds/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions?query=workflow%3A%22%F0%9F%8F%81+Windows+Builds%22)
-[![🐧 Linux Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%90%A7%20Linux%20Builds/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions?query=workflow%3A%22%F0%9F%90%A7+Linux+Builds%22)
-[![🍎 macOS Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%8D%8E%20macOS%20Builds/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions?query=workflow%3A%22%F0%9F%8D%8E+macOS+Builds%22)
-[![🍏 iOS Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%8D%8F%20iOS%20Builds/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions?query=workflow%3A%22%F0%9F%8D%8F+iOS+Builds%22)
-[![🤖 Android Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%A4%96%20Android%20Builds/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions?query=workflow%3A%22%F0%9F%A4%96+Android+Builds%22)
+[![🏁 Windows Builds](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/windows_builds.yml/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/windows_builds.yml)
+[![🐧 Linux Builds](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/linux_builds.yml/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/linux_builds.yml)
+[![🍎 macOS Builds](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/macos_builds.yml/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/macos_builds.yml)
+[![🍏 iOS Builds](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/ios_builds.yml/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/ios_builds.yml)
+[![🤖 Android Builds](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/android_builds.yml/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/android_builds.yml)
 [![🌐 Javascript Builds](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/javascript_builds.yml/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/javascript_builds.yml)
 
 Exported HMTL5 build is deployed [here](https://2shady4u.github.io/godot-cpp-ci/).
