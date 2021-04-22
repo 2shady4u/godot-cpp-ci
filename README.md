@@ -8,6 +8,9 @@ Docker image and Github Actions to automatically compile Godot C++ GDNative libr
 [![🍎 macOS Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%8D%8E%20macOS%20Builds/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions?query=workflow%3A%22%F0%9F%8D%8E+macOS+Builds%22)
 [![🍏 iOS Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%8D%8F%20iOS%20Builds/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions?query=workflow%3A%22%F0%9F%8D%8F+iOS+Builds%22)
 [![🤖 Android Builds](https://github.com/2shady4u/godot-cpp-ci/workflows/%F0%9F%A4%96%20Android%20Builds/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions?query=workflow%3A%22%F0%9F%A4%96+Android+Builds%22)
+[![🌐 Javascript Builds](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/javascript_builds.yml/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/javascript_builds.yml)
+
+Exported HMTL5 build is deployed [here](https://2shady4u.github.io/godot-cpp-ci/).
 
 **Gitlab Runners:**
 
@@ -41,6 +44,7 @@ Again, those files need to be copied and modified for your own repository purpos
 |   osx   | :heavy_check_mark: | :x:                |
 |   ios   | :heavy_check_mark: | :x:                |
 | android | :heavy_check_mark: | :x:                |
+|  html5  | :heavy_check_mark: | :x:                |
 
 ## Frequently Asked Questions (FAQ)
 
