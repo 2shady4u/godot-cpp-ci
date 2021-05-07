@@ -8,6 +8,7 @@ env:
   TARGET_PATH: demo/bin/javascript/
   TARGET_NAME: libgdexample
   TARGET: release
+  EMSDK_VERSION: 2.0.17
   GODOT_VERSION: 3.3
   EXPORT_NAME: gdnative_cpp_example/demo/
 
@@ -50,8 +51,8 @@ jobs:
         run: |
           cd emsdk
           git pull
-          ./emsdk install latest
-          ./emsdk activate latest
+          ./emsdk install ${{env.EMSDK_VERSION}}
+          ./emsdk activate ${{env.EMSDK_VERSION}}
           source ./emsdk_env.sh
           cd ..
           mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}
