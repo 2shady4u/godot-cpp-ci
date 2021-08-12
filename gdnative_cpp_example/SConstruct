@@ -95,8 +95,8 @@ opts.Add(EnumVariable(
 opts.Add(EnumVariable(
     'bits',
     'Target platform bits',
-    'default',
-    ('default', '32', '64')
+    '64' if is64 else '32',
+    ('32', '64')
 ))
 opts.Add(BoolVariable(
     'use_llvm',
