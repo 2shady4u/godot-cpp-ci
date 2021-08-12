@@ -201,9 +201,9 @@ if env['platform'] == 'linux':
     env.Append(CCFLAGS=['-fPIC'])
     env.Append(CXXFLAGS=['-std=c++17'])
     if env['target'] == 'debug':
-        env.Append(CCFLAGS=['-g3','-Og'])
+        env.Append(CCFLAGS = ['-g3','-Og'])
     elif env['target'] == 'release':
-        env.Append(CCFLAGS=['-O3'])
+        env.Append(CCFLAGS = ['-O3'])
         env.Append(LINKFLAGS = ['-s'])
 
     if env['bits'] == '64':
@@ -272,7 +272,7 @@ elif env['platform'] == 'ios':
     env['AR'] = compiler_path + 'ar'
     env['RANLIB'] = compiler_path + 'ranlib'
 
-    env.Append(CCFLAGS=['-g', '-arch', env['ios_arch'], '-isysroot', sdk_path])
+    env.Append(CCFLAGS=['-arch', env['ios_arch'], '-isysroot', sdk_path])
     env.Append(CXXFLAGS=['-std=c++17'])
     env.Append(LINKFLAGS=[
         '-arch',
@@ -285,7 +285,7 @@ elif env['platform'] == 'ios':
     ])
 
     if env['target'] == 'debug':
-        env.Append(CCFLAGS=['-Og', 'g'])
+        env.Append(CCFLAGS=['-Og', '-g'])
     elif env['target'] == 'release':
         env.Append(CCFLAGS=['-O3'])
 
@@ -302,17 +302,18 @@ elif env['platform'] == 'windows':
     elif host_platform == 'linux' or host_platform == 'osx':
         # Cross-compilation using MinGW
         if env['bits'] == '64':
-            env['CC'] = 'x86_64-w64-mingw32-g'
+            env['CC'] = 'x86_64-w64-mingw32-gcc'
             env['CXX'] = 'x86_64-w64-mingw32-g++'
             env['AR'] = "x86_64-w64-mingw32-ar"
             env['RANLIB'] = "x86_64-w64-mingw32-ranlib"
             env['LINK'] = "x86_64-w64-mingw32-g++"
         elif env['bits'] == '32':
-            env['CC'] = 'i686-w64-mingw32-g'
+            env['CC'] = 'i686-w64-mingw32-gcc'
             env['CXX'] = 'i686-w64-mingw32-g++'
             env['AR'] = "i686-w64-mingw32-ar"
             env['RANLIB'] = "i686-w64-mingw32-ranlib"
             env['LINK'] = "i686-w64-mingw32-g++"
+
     elif host_platform == 'windows' and env['use_mingw']:
         # Don't Clone the environment. Because otherwise, SCons will pick up msvc stuff.
         env = Environment(ENV = os.environ, tools=["mingw"])
