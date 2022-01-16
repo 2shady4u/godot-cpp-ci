@@ -64,7 +64,7 @@ These kind of errors might not be apparent on your development machine, so it's 
 
 Handy tool for checking for missing dependencies of any `*.dll` can be found [here](https://github.com/lucasg/Dependencies).  
 
-### 2. Why is the version of Emscripten set to `2.0.17` and not to the lastest one?
+### 2. Why is the version of Emscripten set to `2.0.25` and not to the lastest one?
 
-Later versions of Emscripten don't seem to create binaries that are compatible with the Godot API due to unknown reasons.  
-This issue might be fixed in upcoming versions of Godot (3.3.1+), but the current version is to remain at `2.0.17` until further information or developments arise on the nature of this issue.
+Later versions of Emscripten don't create binaries that are compatible with the Godot API due to version mismatch between engine and binary.  
+The currently used version for Godot engine compilation can be verified in the main Godot repository, as found [here](https://github.com/godotengine/godot/blob/master/.github/workflows/javascript_builds.yml).

@@ -8,7 +8,7 @@ env:
   TARGET_PATH: demo/bin/javascript/
   TARGET_NAME: libgdexample
   TARGET: release
-  EMSDK_VERSION: 2.0.17
+  EMSDK_VERSION: 2.0.25
   GODOT_VERSION: 3.4.2
   EXPORT_NAME: gdnative_cpp_example/demo/
 
