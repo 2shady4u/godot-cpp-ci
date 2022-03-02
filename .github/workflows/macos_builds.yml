@@ -5,21 +5,42 @@ on:
 
 # Global Settings
 env:
-  PROJECT_FOLDER: gdnative_cpp_example
-  TARGET_PATH: demo/bin/osx/
+  PROJECT_FOLDER: gdextension_cpp_example
+  TARGET_PATH: demo/bin/
   TARGET_NAME: libgdexample
-  TARGET: release
+  SCONS_CACHE: ${{ github.workspace }}/.scons-cache/
 
 jobs:
   macos-compilation:
-    name: MacOS Compilation
-    runs-on: "macos-11"
+    runs-on: "macos-latest"
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: MacOS (universal) - Debug
+            cache-name: macos-universal
+            target: template_debug
+            artifact-extension: framework
+            flags: arch=universal
+          - name: MacOS (universal) - Release
+            cache-name: macos-universal
+            target: template_release
+            artifact-extension: framework
+            flags: arch=universal
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           lfs: true
           submodules: recursive
+
+      - name: Restore Godot build cache
+        uses: ./gdextension_cpp_example/godot-cpp/.github/actions/godot-cache-restore
+        with:
+          cache-name: ${{ matrix.cache-name }}-${{ matrix.target }}
+        continue-on-error: true
 
       # Use python 3.x release (works cross platform; best to keep self contained in it's own step)
       - name: Set up Python 3.x
@@ -40,15 +61,21 @@ jobs:
 
       - name: Compilation
         run: |
-          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}
-          cd ${{env.PROJECT_FOLDER}}
-          cd godot-cpp
-          scons platform=osx bits=64 target=${{env.TARGET}} generate_bindings=yes -j $(sysctl -n hw.logicalcpu)
-          cd ..
-          scons platform=osx target=${{env.TARGET}} target_path=${{env.TARGET_PATH}} target_name=${{env.TARGET_NAME}}
+          mkdir -v -p ${{ env.PROJECT_FOLDER }}/${{ env.TARGET_PATH }}
+          cd ${{ env.PROJECT_FOLDER }}
+          scons platform=macos target=${{ matrix.target }} target_path=${{ env.TARGET_PATH }} target_name=${{ env.TARGET_NAME }} -j6 ${{ matrix.flags }}
+
+      - name: Save Godot build cache
+        uses: ./gdextension_cpp_example/godot-cpp/.github/actions/godot-cache-save
+        with:
+          cache-name: ${{ matrix.cache-name }}-${{ matrix.target }}
+        continue-on-error: true
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v1
+        env:
+          ARTIFACT_FOLDER: ${{ env.PROJECT_FOLDER }}/${{ env.TARGET_PATH }}
+        uses: actions/upload-artifact@v4
         with:
-          name: osx
-          path: ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}
+          name: ${{ matrix.cache-name }}-${{ matrix.target }}
+          path: ${{ env.ARTIFACT_FOLDER }}*.${{ matrix.artifact-extension }}
+          if-no-files-found: error

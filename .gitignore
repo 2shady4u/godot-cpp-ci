@@ -1,5 +1,8 @@
 # Godot-specific ignores
+*.gen.*
 .import/
+.godot/
+/gen/
 
 # Imported translations (automatically generated from CSV files)
 *.translation
@@ -45,7 +48,8 @@ Thumbs.db
 
 # Etc
 .sconsign.dblite
-gdnative_cpp_example/demo/build
+gdextension_cpp_example/demo/build/
+build/
 test_backup_new.json
 
 # VS

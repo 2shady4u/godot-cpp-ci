@@ -11,40 +11,44 @@ stages:
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
-  PROJECT_FOLDER: gdnative_cpp_example
+  PROJECT_FOLDER: gdextension_cpp_example
   TARGET_NAME: libgdexample
-  TARGET: release
 
 # Linux shared libraries are humongous (>70MB) for some reason.. don't forget to strip them!
 linux:
   stage: export
   variables:
-    TARGET_PATH: demo/bin/x11/
+    TARGET_PATH: demo/bin/
+  parallel:
+    matrix:
+      - TARGET:
+        - template_debug
+        - template_release
+  environment: $TARGET
   script:
     - mkdir -v -p $PROJECT_FOLDER/$TARGET_PATH
-    -  cd $PROJECT_FOLDER
-    - cd godot-cpp
-    - scons platform=linux bits=64 target=$TARGET generate_bindings=yes -j4
-    - cd ..
-    - scons platform=linux target=$TARGET target_path=$TARGET_PATH target_name=$TARGET_NAME
-    - strip --strip-all $TARGET_PATH$TARGET_NAME.so
+    - cd $PROJECT_FOLDER
+    - scons platform=linux target=$TARGET target_path=$TARGET_PATH target_name=$TARGET_NAME -j6
   artifacts:
-    name: x11
+    name: linux
     paths:
       - $PROJECT_FOLDER/$TARGET_PATH
 
 windows:
   stage: export
   variables:
-    TARGET_PATH: demo/bin/win64/
+    TARGET_PATH: demo/bin/
+  parallel:
+    matrix:
+      - TARGET:
+        - template_debug
+        - template_release
+  environment: $TARGET
   script:
     - mkdir -v -p $PROJECT_FOLDER/$TARGET_PATH
-    - cd gdnative_cpp_example
-    - cd godot-cpp
-    - scons platform=windows bits=64 target=$TARGET generate_bindings=yes -j4
-    - cd ..
-    - scons platform=windows target=$TARGET target_path=$TARGET_PATH target_name=$TARGET_NAME
+    - cd $PROJECT_FOLDER
+    - scons platform=windows target=$TARGET target_path=$TARGET_PATH target_name=$TARGET_NAME -j6
   artifacts:
-    name: win64
+    name: windows
     paths:
       - $PROJECT_FOLDER/$TARGET_PATH
