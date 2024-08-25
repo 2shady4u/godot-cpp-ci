@@ -4,37 +4,88 @@ on:
     branches: [ master, main ]
     
 # Global Settings
-# Only use the release target for android, otherwise further modification of the make-files is required!
 env:
-  PROJECT_FOLDER: gdnative_cpp_example
-  TARGET_PATH: demo/bin/android/
+  PROJECT_FOLDER: gdextension_cpp_example
+  TARGET_PATH: demo/bin/
   TARGET_NAME: libgdexample
-  TARGET: release
+  SCONS_CACHE: ${{ github.workspace }}/.scons-cache/
 
 jobs:
   android-compilation:
-    name: Android Compilation
     runs-on: "ubuntu-20.04"
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Android (x86_64) - Debug
+            cache-name: android-x86_64
+            target: template_debug
+            artifact-extension: so
+            flags: arch=x86_64
+          - name: Android (x86_64) - Release
+            cache-name: android-x86_64
+            target: template_release
+            artifact-extension: so
+            flags: arch=x86_64
+          - name: Android (arm64) - Debug
+            cache-name: android-arm64
+            target: template_debug
+            artifact-extension: so
+            flags: arch=arm64
+          - name: Android (arm64) - Release
+            cache-name: android-arm64
+            target: template_release
+            artifact-extension: so
+            flags: arch=arm64
+          - name: Android (x86_32) - Debug
+            cache-name: android-x86_32
+            target: template_debug
+            artifact-extension: so
+            flags: arch=x86_32
+          - name: Android (x86_32) - Release
+            cache-name: android-x86_32
+            target: template_release
+            artifact-extension: so
+            flags: arch=x86_32
+          - name: Android (arm32) - Debug
+            cache-name: android-arm32
+            target: template_debug
+            artifact-extension: so
+            flags: arch=arm32
+          - name: Android (arm32) - Release
+            cache-name: android-arm32
+            target: template_release
+            artifact-extension: so
+            flags: arch=arm32
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v2 
+        uses: actions/checkout@v4 
         with:
             lfs: true
             submodules: recursive
 
-      - name: Set up Java 8
-        uses: actions/setup-java@v1
+      - name: Restore Godot build cache
+        uses: ./gdextension_cpp_example/godot-cpp/.github/actions/godot-cache-restore
         with:
-          java-version: 8
+          cache-name: ${{ matrix.cache-name }}-${{ matrix.target }}
+        continue-on-error: true
 
       # Use python 3.x release (works cross platform)
       - name: Set up Python 3.x
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           # Semantic version range syntax or exact version of a Python version
           python-version: '3.x'
           # Optional - x64 or x86 architecture, defaults to x64
           architecture: 'x64'
+
+      - name: Android dependencies
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r23c
+          link-to-sdk: true
 
       - name: Configuring Python packages
         run: |
@@ -47,18 +98,21 @@ jobs:
         env:
           ANDROID_NDK_ROOT: /usr/local/lib/android/sdk/ndk-bundle
         run: |
-          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}/armeabi-v7a
-          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}/arm64-v8a
-          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}/x86
-          cd ${{env.PROJECT_FOLDER}}
-          cd godot-cpp
-          scons platform=android bits=64 android_arch=armv7 target=${{env.TARGET}} generate_bindings=yes -j4
-          scons platform=android bits=64 android_arch=arm64v8 target=${{env.TARGET}} generate_bindings=yes -j4
-          scons platform=android bits=64 android_arch=x86 target=${{env.TARGET}} generate_bindings=yes -j4
-          cd ..
-          $ANDROID_NDK_ROOT/ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk APP_PLATFORM=android-21 NDK_LIBS_OUT=./${{env.TARGET_PATH}}
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v1
+          mkdir -v -p ${{ env.PROJECT_FOLDER }}/${{ env.TARGET_PATH }}
+          cd ${{ env.PROJECT_FOLDER }}
+          scons platform=android target=${{ matrix.target }} target_path=${{ env.TARGET_PATH }} target_name=${{ env.TARGET_NAME }} -j6 ${{ matrix.flags }}
+
+      - name: Save Godot build cache
+        uses: ./gdextension_cpp_example/godot-cpp/.github/actions/godot-cache-save
         with:
-          name: android
-          path: ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}
+          cache-name: ${{ matrix.cache-name }}-${{ matrix.target }}
+        continue-on-error: true
+
+      - name: Upload Artifact
+        env:
+          ARTIFACT_FOLDER: ${{ env.PROJECT_FOLDER }}/${{ env.TARGET_PATH }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.cache-name }}-${{ matrix.target }}
+          path: ${{ env.ARTIFACT_FOLDER }}*.${{ matrix.artifact-extension }}
+          if-no-files-found: error

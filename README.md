@@ -1,5 +1,5 @@
 # godot-cpp-ci
-Docker image and Github Actions to automatically compile Godot C++ GDNative libraries.
+Docker image and Github Actions to automatically compile Godot C++ GDExtension libraries.
 
 **Github Actions:**  
 
@@ -39,32 +39,21 @@ Again, those files need to be copied and modified for your own repository purpos
 
 |         | Github             | Gitlab             |
 |---------|:------------------:|:------------------:|
-| windows | :heavy_check_mark: | :heavy_check_mark: |
-|   x11   | :heavy_check_mark: | :heavy_check_mark: |
-|   osx   | :heavy_check_mark: | :x:                |
-|   ios   | :heavy_check_mark: | :x:                |
-| android | :heavy_check_mark: | :x:                |
-|  html5  | :heavy_check_mark: | :x:                |
+| Windows | :heavy_check_mark: | :heavy_check_mark: |
+| Linux   | :heavy_check_mark: | :heavy_check_mark: |
+| macOS   | :heavy_check_mark: | :x:                |
+| iOS     | :heavy_check_mark: | :x:                |
+| Android | :heavy_check_mark: | :x:                |
+| Web     | :heavy_check_mark: | :x:                |
 
 ## Frequently Asked Questions (FAQ)
 
-### 1. Why does this repository export to the `release`-target by default?
+### 1. Why is the version of Emscripten set to `3.1.64` and not to the lastest one?
 
-Exporting to the `debug`-target gives potential dependency problems, especially on Windows, that might break your plugin for users that don't have any dev environment set up on their device.
+Later versions of Emscripten might introduce breaking changes that are not compatible with the Godot API.  
+The Emscripten version used by Godot can be checked here:  
+https://github.com/godotengine/godot/blob/master/.github/workflows/web_builds.yml
 
-In those cases, Godot will fail to load the library and print an error of following form (or similar):
-```
-Can't open dynamic library: bin/win64/libgdexample.dll, error: Error 126: The specified module could not be found.
-.
-modules/gdnative/gdnative.cpp:501 - No valid library handle, can't get symbol from GDNative object
-modules/gdnative/nativescript/nativescript.cpp:1506 - No nativescript_init in "res://bin/win64/libgdexample.dll" found
-```
+### 2. Can be thread support be enabled for GitHub pages?
 
-These kind of errors might not be apparent on your development machine, so it's always a good idea to check for this kind of issues on a non-development machine!
-
-Handy tool for checking for missing dependencies of any `*.dll` can be found [here](https://github.com/lucasg/Dependencies).  
-
-### 2. Why is the version of Emscripten set to `2.0.25` and not to the lastest one?
-
-Later versions of Emscripten don't create binaries that are compatible with the Godot API due to version mismatch between engine and binary.  
-The currently used version for Godot engine compilation can be verified in the main Godot repository, as found [here](https://github.com/godotengine/godot/blob/master/.github/workflows/javascript_builds.yml).
+No, unless Github pages starts supporting SharedArrayBuffer in a future update.

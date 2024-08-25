@@ -5,25 +5,44 @@ on:
 
 # Global Settings
 env:
-  PROJECT_FOLDER: gdnative_cpp_example
-  TARGET_PATH: demo/bin/ios/
+  PROJECT_FOLDER: gdextension_cpp_example
+  TARGET_PATH: demo/bin/
   TARGET_NAME: libgdexample
-  TARGET: release
+  SCONS_CACHE: ${{ github.workspace }}/.scons-cache/
 
 jobs:
   ios-compilation:
-    name: iOS Compilation
     runs-on: "macos-latest"
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: iOS (arm64) - Debug
+            cache-name: ios-arm64
+            target: template_debug
+            artifact-extension: xcframework
+          - name: iOS (arm64) - Release
+            cache-name: ios-arm64
+            target: template_release
+            artifact-extension: xcframework
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           lfs: true
           submodules: recursive
 
+      - name: Restore Godot build cache
+        uses: ./gdextension_cpp_example/godot-cpp/.github/actions/godot-cache-restore
+        with:
+          cache-name: ${{ matrix.cache-name }}-${{ matrix.target }}
+        continue-on-error: true
+
       # Use python 3.x release (works cross platform)
       - name: Set up Python 3.x
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           # Semantic version range syntax or exact version of a Python version
           python-version: '3.x'
@@ -40,21 +59,24 @@ jobs:
 
       - name: Compilation
         run: |
-          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}/armv7
-          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}/arm64
+          mkdir -v -p ${{ env.PROJECT_FOLDER }}/${{ env.TARGET_PATH }}
           cd ${{env.PROJECT_FOLDER}}
-          cd godot-cpp
-          scons platform=ios ios_arch=armv7 bits=64 target=${{env.TARGET}} generate_bindings=yes -j4
-          scons platform=ios ios_arch=arm64 bits=64 target=${{env.TARGET}} generate_bindings=yes -j4
-          ls bin/
-          cd ..
-          scons platform=ios ios_arch=armv7 target=${{env.TARGET}} target_path=${{env.TARGET_PATH}} target_name=${{env.TARGET_NAME}}
-          scons platform=ios ios_arch=arm64 target=${{env.TARGET}} target_path=${{env.TARGET_PATH}} target_name=${{env.TARGET_NAME}}
-          cp godot-cpp/bin/libgodot-cpp.ios.release.arm64.a ${{env.TARGET_PATH}}/armv7/libgodot-cpp.ios.release.arm64.a
-          cp godot-cpp/bin/libgodot-cpp.ios.release.armv7.a ${{env.TARGET_PATH}}/arm64/libgodot-cpp.ios.release.armv7.a
+          scons arch=universal ios_simulator=yes platform=ios target=${{ matrix.target }} target_path=${{ env.TARGET_PATH }} target_name=${{ env.TARGET_NAME }} -j6
+          scons arch=arm64 ios_simulator=no platform=ios target=${{ matrix.target }} target_path=${{ env.TARGET_PATH }} target_name=${{ env.TARGET_NAME }} -j6
+          xcodebuild -create-xcframework -library ${{ env.TARGET_PATH }}/${{ env.TARGET_NAME }}.ios.${{ matrix.target }}.a -library ${{ env.TARGET_PATH }}/${{ env.TARGET_NAME }}.ios.${{ matrix.target }}.simulator.a -output ${{ env.TARGET_PATH }}/${{ env.TARGET_NAME }}.ios.${{ matrix.target }}.xcframework
+          xcodebuild -create-xcframework -library godot-cpp/bin/libgodot-cpp.ios.${{ matrix.target }}.arm64.a -library godot-cpp/bin/libgodot-cpp.ios.${{ matrix.target }}.universal.simulator.a  -output ${{ env.TARGET_PATH }}/libgodot-cpp.ios.${{ matrix.target }}.xcframework
+
+      - name: Save Godot build cache
+        uses: ./gdextension_cpp_example/godot-cpp/.github/actions/godot-cache-save
+        with:
+          cache-name: ${{ matrix.cache-name }}-${{ matrix.target }}
+        continue-on-error: true
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v1
+        env:
+          ARTIFACT_FOLDER: ${{ env.PROJECT_FOLDER }}/${{ env.TARGET_PATH }}
+        uses: actions/upload-artifact@v4
         with:
-          name: ios
-          path: ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}
+          name: ${{ matrix.cache-name }}-${{ matrix.target }}
+          path: ${{ env.ARTIFACT_FOLDER }}*.${{ matrix.artifact-extension }}
+          if-no-files-found: error

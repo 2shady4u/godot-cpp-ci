@@ -1,0 +1,147 @@
+name: 🌐 Web Builds
+on:
+  push:
+    branches: [ master, main ]
+
+env:
+  PROJECT_FOLDER: gdextension_cpp_example
+  TARGET_PATH: demo/bin/
+  TARGET_NAME: libgdexample
+  SCONS_CACHE: ${{ github.workspace }}/.scons-cache/
+  EM_VERSION: 3.1.39
+  EM_CACHE_FOLDER: emsdk-cache
+  GODOT_VERSION: 4.3
+  EXPORT_NAME: gdextension_cpp_example/demo/
+
+jobs:
+  web-compilation:
+    runs-on: "ubuntu-20.04"
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Web (wasm32) - Debug
+            cache-name: web-wasm32
+            target: template_debug
+            artifact-extension: wasm
+          - name: Web (wasm32) - Release
+            cache-name: web-wasm32
+            target: template_release
+            artifact-extension: wasm
+          - name: Web (wasm32, No Threads) - Debug
+            cache-name: web-wasm32-nothreads
+            target: template_debug
+            artifact-extension: nothreads.wasm
+            flags: threads=no
+          - name: Web (wasm32, No Threads) - Release
+            cache-name: web-wasm32-nothreads
+            target: template_release
+            artifact-extension: nothreads.wasm
+            flags: threads=no
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+            lfs: true
+            submodules: recursive
+
+      - name: Restore Godot build cache
+        uses: ./gdextension_cpp_example/godot-cpp/.github/actions/godot-cache-restore
+        with:
+          cache-name: ${{ matrix.cache-name }}-${{ matrix.target }}
+        continue-on-error: true
+
+      # Use python 3.x release (works cross platform)
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v5
+        with:
+          # Semantic version range syntax or exact version of a Python version
+          python-version: '3.x'
+          # Optional - x64 or x86 architecture, defaults to x64
+          architecture: 'x64'
+
+      - name: Web dependencies
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: ${{ env.EM_VERSION }}
+          actions-cache-folder: ${{ env.EM_CACHE_FOLDER }}-${{ matrix.target }}
+
+      - name: Configuring Python packages
+        run: |
+          python -c "import sys; print(sys.version)"
+          python -m pip install scons
+          python --version
+          scons --version
+
+      - name: Compilation
+        run: |
+          mkdir -v -p ${{ env.PROJECT_FOLDER}}/${{ env.TARGET_PATH }}
+          cd ${{ env.PROJECT_FOLDER }}
+          scons platform=web target=${{ matrix.target }} target_path=${{ env.TARGET_PATH }} target_name=${{env.TARGET_NAME}} -j6 ${{ matrix.flags }}
+
+      - name: Save Godot build cache
+        uses: ./gdextension_cpp_example/godot-cpp/.github/actions/godot-cache-save
+        with:
+          cache-name: ${{ matrix.cache-name }}-${{ matrix.target }}
+        continue-on-error: true
+
+      - name: Upload Artifact
+        env:
+          ARTIFACT_FOLDER: ${{ env.PROJECT_FOLDER }}/${{ env.TARGET_PATH }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.cache-name }}-${{ matrix.target }}
+          path: ${{ env.ARTIFACT_FOLDER }}*.${{ matrix.artifact-extension }}
+          if-no-files-found: error
+
+  web-deploy:
+    name: Web Deploy
+    runs-on: ubuntu-latest
+    needs: [ web-compilation ]
+    container:
+      image: barichello/godot-ci:4.3 # Ideally this would be ${GODOT_VERSION}, but Github Actions doesn't allow this! :(
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Copy Libraries to Project Folder
+        run: |
+          mkdir -v -p ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}
+          cp --verbose web-wasm32-*/*.wasm ${{env.PROJECT_FOLDER}}/${{env.TARGET_PATH}}
+
+      - name: Setup
+        run: |
+          mkdir -v -p ~/.local/share/godot/export_templates
+          mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+
+      - name: Web Build
+        run: |
+          mkdir -v -p build/web
+          cd $EXPORT_NAME
+          godot --headless --verbose --export-release "Web" ../../build/web/index.html
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: build/web
+
+      # Installing rsync is needed in order to deploy to GitHub Pages. Without it, the build will fail.
+      - name: Install rsync 📚
+        run: |
+          apt-get update && apt-get install -y rsync
+
+      - name: Deploy to GitHub Pages 🚀
+        uses: JamesIves/github-pages-deploy-action@releases/v4
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages # The branch the action should deploy to.
+          FOLDER: build/web # The folder the action should deploy.
