@@ -8,7 +8,7 @@ Docker image and Github Actions to automatically compile Godot C++ GDExtension l
 [![🍎 macOS Builds](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/macos_builds.yml/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/macos_builds.yml)
 [![🍏 iOS Builds](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/ios_builds.yml/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/ios_builds.yml)
 [![🤖 Android Builds](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/android_builds.yml/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/android_builds.yml)
-[![🌐 Javascript Builds](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/javascript_builds.yml/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/javascript_builds.yml)
+[![🌐 Web Builds](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/web_builds.yml/badge.svg?branch=main)](https://github.com/2shady4u/godot-cpp-ci/actions/workflows/web_builds.yml)
 
 Exported HMTL5 build is deployed [here](https://2shady4u.github.io/godot-cpp-ci/).
 
