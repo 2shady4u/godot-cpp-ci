@@ -48,12 +48,12 @@ Again, those files need to be copied and modified for your own repository purpos
 
 ## Frequently Asked Questions (FAQ)
 
-### 1. Why is the version of Emscripten set to `3.1.64` and not to the lastest one?
+### 1. Why is the version of Emscripten set to `4.0.11` and not to the lastest one?
 
 Later versions of Emscripten might introduce breaking changes that are not compatible with the Godot API.  
 The Emscripten version used by Godot can be checked here:  
 https://github.com/godotengine/godot/blob/master/.github/workflows/web_builds.yml
 
-### 2. Can be thread support be enabled for GitHub pages?
+### 2. Can thread support be enabled for GitHub pages?
 
 No, unless Github pages starts supporting SharedArrayBuffer in a future update.

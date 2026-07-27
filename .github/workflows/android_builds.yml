@@ -12,7 +12,7 @@ env:
 
 jobs:
   android-compilation:
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-22.04"
     name: ${{ matrix.name }}
     strategy:
       fail-fast: false
@@ -61,7 +61,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4 
+        uses: actions/checkout@v5
         with:
             lfs: true
             submodules: recursive
@@ -74,7 +74,7 @@ jobs:
 
       # Use python 3.x release (works cross platform)
       - name: Set up Python 3.x
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           # Semantic version range syntax or exact version of a Python version
           python-version: '3.x'
@@ -84,7 +84,7 @@ jobs:
       - name: Android dependencies
         uses: nttld/setup-ndk@v1
         with:
-          ndk-version: r23c
+          ndk-version: r28b
           link-to-sdk: true
 
       - name: Configuring Python packages
@@ -111,7 +111,7 @@ jobs:
       - name: Upload Artifact
         env:
           ARTIFACT_FOLDER: ${{ env.PROJECT_FOLDER }}/${{ env.TARGET_PATH }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.cache-name }}-${{ matrix.target }}
           path: ${{ env.ARTIFACT_FOLDER }}*.${{ matrix.artifact-extension }}

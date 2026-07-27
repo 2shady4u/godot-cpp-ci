@@ -12,7 +12,7 @@ env:
 
 jobs:
   linux-compilation:
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-22.04"
     name: ${{ matrix.name }}
     strategy:
       fail-fast: false
@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           lfs: true
           submodules: recursive
@@ -42,7 +42,7 @@ jobs:
 
       # Use python 3.x release (works cross platform; best to keep self contained in it's own step)
       - name: Set up Python 3.x
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           # Semantic version range syntax or exact version of a Python version
           python-version: '3.x'
@@ -72,8 +72,46 @@ jobs:
       - name: Upload Artifact
         env:
           ARTIFACT_FOLDER: ${{ env.PROJECT_FOLDER }}/${{ env.TARGET_PATH }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.cache-name }}-${{ matrix.target }}
           path: ${{ env.ARTIFACT_FOLDER }}*.${{ matrix.artifact-extension }}
           if-no-files-found: error
+
+  linux-test:
+    name: Test
+    runs-on: "ubuntu-22.04"
+    needs: [ linux-compilation ]
+    container:
+      image: barichello/godot-ci:4.7.1 # Ideally this would be ${GODOT_VERSION}, but Github Actions doesn't allow this! :(
+
+    steps:
+      - name: Install fontconfig
+        run: apt-get update && apt-get install -y libfontconfig1
+
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          lfs: true
+          submodules: recursive
+
+      - name: Download Artifacts
+        id: download
+        uses: actions/download-artifact@v7
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Copy binaries to bin/-folder
+        run: |
+          ls ${{steps.download.outputs.download-path}}/
+          cd ${{ env.PROJECT_FOLDER }}/demo/
+          cp -r ${{steps.download.outputs.download-path}}/* bin/
+          ls bin/
+
+      # Initial editor load returns a segmentation fault due to race condition in doc unintialization -> Known issue! (#2024)
+      - name: Run
+        run: |
+          cd ${{ env.PROJECT_FOLDER }}/demo/
+          godot -e --headless --verbose --quit || true
+          godot --headless --verbose --quit

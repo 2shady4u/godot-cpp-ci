@@ -8,14 +8,14 @@ env:
   TARGET_PATH: demo/bin/
   TARGET_NAME: libgdexample
   SCONS_CACHE: ${{ github.workspace }}/.scons-cache/
-  EM_VERSION: 3.1.39
+  EM_VERSION: 4.0.11
   EM_CACHE_FOLDER: emsdk-cache
-  GODOT_VERSION: 4.3
+  GODOT_VERSION: 4.7.1
   EXPORT_NAME: gdextension_cpp_example/demo/
 
 jobs:
   web-compilation:
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-22.04"
     name: ${{ matrix.name }}
     strategy:
       fail-fast: false
@@ -42,7 +42,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
             lfs: true
             submodules: recursive
@@ -55,7 +55,7 @@ jobs:
 
       # Use python 3.x release (works cross platform)
       - name: Set up Python 3.x
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           # Semantic version range syntax or exact version of a Python version
           python-version: '3.x'
@@ -63,7 +63,7 @@ jobs:
           architecture: 'x64'
 
       - name: Web dependencies
-        uses: mymindstorm/setup-emsdk@v14
+        uses: emscripten-core/setup-emsdk@v16
         with:
           version: ${{ env.EM_VERSION }}
           actions-cache-folder: ${{ env.EM_CACHE_FOLDER }}-${{ matrix.target }}
@@ -90,7 +90,7 @@ jobs:
       - name: Upload Artifact
         env:
           ARTIFACT_FOLDER: ${{ env.PROJECT_FOLDER }}/${{ env.TARGET_PATH }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.cache-name }}-${{ matrix.target }}
           path: ${{ env.ARTIFACT_FOLDER }}*.${{ matrix.artifact-extension }}
@@ -98,19 +98,20 @@ jobs:
 
   web-deploy:
     name: Web Deploy
-    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
     needs: [ web-compilation ]
     container:
-      image: barichello/godot-ci:4.3 # Ideally this would be ${GODOT_VERSION}, but Github Actions doesn't allow this! :(
+      image: barichello/godot-ci:4.7.1 # Ideally this would be ${GODOT_VERSION}, but Github Actions doesn't allow this! :(
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           lfs: true
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
 
       - name: Copy Libraries to Project Folder
         run: |
@@ -129,7 +130,7 @@ jobs:
           godot --headless --verbose --export-release "Web" ../../build/web/index.html
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: web
           path: build/web
