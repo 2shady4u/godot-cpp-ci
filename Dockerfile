@@ -1,4 +1,4 @@
-FROM ubuntu:noble
+FROM ubuntu:22.04
 LABEL author="https://github.com/2shady4u/godot-cpp-ci/graphs/contributors"
 
 USER root
