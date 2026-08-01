@@ -29,12 +29,6 @@ This repository is mirrored to Gitlab [here](https://gitlab.com/2shady4u/godot-c
 
 `.gitlab-ci.yml` and `.github/workflows/*.yml` are included in this project as reference. In most cases, just copying them to your own repository does the job.
 
-### Android
-
-For android compilation purposes, a special `Android.mk`-file as well as a `jni/Application.mk`-file are included in the `gdnative_cpp_example`-folder.
-
-Again, those files need to be copied and modified for your own repository purposes.
-
 ## Availability Matrix
 
 |         | Github             | Gitlab             |

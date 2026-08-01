@@ -84,7 +84,7 @@ jobs:
           if-no-files-found: error
 
   windows-cross-compilation:
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04" # 22.04 does not work for some reason!
     name: ${{ matrix.name }}
     strategy:
       fail-fast: false
